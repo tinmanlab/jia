@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARO Draw</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0f0f14;
+    --surface: #1a1a24;
+    --surface2: #22223a;
+    --border: #2a2a44;
+    --text: #e8e8f0;
+    --text-dim: #8888aa;
+    --accent: #7c5cfc;
+    --accent-glow: #7c5cfc44;
+    --danger: #ff4466;
+  }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* ── Header ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    z-index: 10;
+  }
+
+  .logo {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    background: linear-gradient(135deg, #7c5cfc, #ff6b9d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .logo span {
+    font-weight: 300;
+    font-size: 12px;
+    letter-spacing: 1px;
+    -webkit-text-fill-color: var(--text-dim);
+  }
+
+  /* ── Toolbar ── */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .tool-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    background: var(--surface2);
+    border-radius: 10px;
+  }
+
+  .tool-btn {
+    width: 38px;
+    height: 38px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.15s;
+  }
+
+  .tool-btn:hover { background: var(--border); color: var(--text); }
+  .tool-btn.active { background: var(--accent); color: #fff; box-shadow: 0 0 12px var(--accent-glow); }
+
+  .separator {
+    width: 1px;
+    height: 28px;
+    background: var(--border);
+    margin: 0 6px;
+  }
+
+  /* ── Sliders ── */
+  .slider-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    background: var(--surface2);
+    border-radius: 10px;
+  }
+
+  .slider-group label {
+    font-size: 11px;
+    color: var(--text-dim);
+    min-width: 32px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .slider-group input[type="range"] {
+    -webkit-appearance: none;
+    width: 100px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+  }
+
+  .slider-group input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 6px var(--accent-glow);
+  }
+
+  .slider-group .value {
+    font-size: 12px;
+    color: var(--text);
+    min-width: 28px;
+    text-align: right;
+    font-weight: 600;
+  }
+
+  /* ── Color palette ── */
+  .color-section {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    background: var(--surface2);
+    border-radius: 10px;
+  }
+
+  .color-preview {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .color-preview input[type="color"] {
+    position: absolute;
+    inset: -8px;
+    width: 50px;
+    height: 50px;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+  }
+
+  .palette {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+    max-width: 200px;
+  }
+
+  .palette-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .palette-color:hover { transform: scale(1.2); }
+  .palette-color.active { border-color: #fff; box-shadow: 0 0 6px rgba(255,255,255,0.3); }
+
+  /* ── Action buttons ── */
+  .actions {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+  }
+
+  .action-btn {
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text-dim);
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .action-btn:hover { border-color: var(--accent); color: var(--text); }
+  .action-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+
+  /* ── Canvas area ── */
+  .canvas-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(circle at 50% 50%, #1a1a2e 0%, var(--bg) 70%);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .canvas-container {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px var(--border),
+      0 20px 60px rgba(0,0,0,0.5),
+      0 0 80px var(--accent-glow);
+  }
+
+  canvas {
+    display: block;
+    cursor: crosshair;
+  }
+
+  /* ── Brush cursor overlay ── */
+  .brush-cursor {
+    position: fixed;
+    pointer-events: none;
+    border: 2px solid rgba(255,255,255,0.5);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    display: none;
+    mix-blend-mode: difference;
+  }
+
+  /* ── Status bar ── */
+  .statusbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 20px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .statusbar .coord { font-family: monospace; }
+
+  /* ── Layers panel ── */
+  .layers-toggle {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    z-index: 20;
+  }
+
+  .layers-panel {
+    position: absolute;
+    right: 20px;
+    top: 60px;
+    width: 220px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    z-index: 20;
+    display: none;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+
+  .layers-panel.open { display: block; }
+
+  .layers-panel h3 {
+    font-size: 12px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .layer-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.15s;
+  }
+
+  .layer-item:hover { background: var(--surface2); }
+  .layer-item.active { background: var(--accent); color: #fff; }
+
+  .layer-thumb {
+    width: 28px;
+    height: 20px;
+    background: var(--surface2);
+    border-radius: 3px;
+    border: 1px solid var(--border);
+  }
+
+  /* ── SVG icons inline ── */
+  svg { fill: currentColor; }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .toolbar { gap: 4px; padding: 6px 10px; }
+    .slider-group input[type="range"] { width: 60px; }
+    .palette { max-width: 140px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ARO <span>DRAW</span></div>
+  <div style="font-size:12px; color:var(--text-dim)">
+    <span class="coord" id="coordDisplay">0, 0</span>
+  </div>
+</header>
+
+<div class="toolbar">
+  <!-- Tools -->
+  <div class="tool-group" id="toolGroup">
+    <button class="tool-btn active" data-tool="pen" title="Pen (B)">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+    </button>
+    <button class="tool-btn" data-tool="eraser" title="Eraser (E)">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M16.24 3.56l4.95 4.94c.78.79.78 2.05 0 2.84L12 20.53a4.01 4.01 0 01-5.66 0L2.81 17c-.78-.78-.78-2.05 0-2.83l10.6-10.61c.79-.78 2.05-.78 2.83 0zm-1.41 1.42L5.17 14.64l2.12 2.12 9.66-9.66-2.12-2.12z"/></svg>
+    </button>
+    <button class="tool-btn" data-tool="line" title="Line (L)">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M4 20L20 4" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>
+    </button>
+    <button class="tool-btn" data-tool="rect" title="Rectangle (R)">
+      <svg width="18" height="18" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+    </button>
+    <button class="tool-btn" data-tool="circle" title="Circle (C)">
+      <svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+    </button>
+    <button class="tool-btn" data-tool="fill" title="Fill (G)">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M16.56 8.94L7.62 0 6.21 1.41l2.38 2.38-5.15 5.15a2 2 0 000 2.83l5.66 5.66a2 2 0 002.83 0l5.63-5.66a2 2 0 000-2.83zM5.05 10L10 5.05 14.95 10H5.05zm14 5c-.83 1.46-2.5 3-2.5 4.5a2.5 2.5 0 005 0c0-1.5-1.67-3.04-2.5-4.5z"/></svg>
+    </button>
+    <button class="tool-btn" data-tool="eyedropper" title="Eyedropper (I)">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M20.71 5.63l-2.34-2.34a1 1 0 00-1.41 0l-3.12 3.12-1.42-1.42-1.41 1.42 1.41 1.41L3 17.25V21h3.75l9.43-9.43 1.42 1.42 1.41-1.42-1.41-1.41 3.12-3.12a1 1 0 000-1.41zM6.92 19L5 17.08l8.06-8.06 1.92 1.92L6.92 19z"/></svg>
+    </button>
+  </div>
+
+  <div class="separator"></div>
+
+  <!-- Brush size -->
+  <div class="slider-group">
+    <label>Size</label>
+    <input type="range" id="brushSize" min="1" max="80" value="4">
+    <span class="value" id="brushSizeVal">4</span>
+  </div>
+
+  <!-- Opacity -->
+  <div class="slider-group">
+    <label>Opacity</label>
+    <input type="range" id="opacity" min="1" max="100" value="100">
+    <span class="value" id="opacityVal">100</span>
+  </div>
+
+  <div class="separator"></div>
+
+  <!-- Colors -->
+  <div class="color-section">
+    <div class="color-preview" id="colorPreview" style="background:#ffffff">
+      <input type="color" id="colorPicker" value="#ffffff">
+    </div>
+    <div class="palette" id="palette"></div>
+  </div>
+
+  <div class="separator"></div>
+
+  <!-- Actions -->
+  <div class="actions">
+    <button class="action-btn" id="undoBtn" title="Undo (Ctrl+Z)">
+      <svg width="14" height="14" viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
+      Undo
+    </button>
+    <button class="action-btn" id="redoBtn" title="Redo (Ctrl+Y)">
+      Redo
+      <svg width="14" height="14" viewBox="0 0 24 24"><path d="M18.4 10.6C16.55 8.99 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16c1.05-3.19 4.05-5.5 7.6-5.5 1.95 0 3.73.72 5.12 1.88L13 16h9V7l-3.6 3.6z"/></svg>
+    </button>
+    <button class="action-btn danger" id="clearBtn" title="Clear Canvas">
+      <svg width="14" height="14" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+      Clear
+    </button>
+    <button class="action-btn" id="saveBtn" title="Save (Ctrl+S)">
+      <svg width="14" height="14" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+      Save
+    </button>
+  </div>
+</div>
+
+<div class="canvas-wrap" id="canvasWrap">
+  <div class="canvas-container">
+    <canvas id="canvas" width="1200" height="700"></canvas>
+  </div>
+
+  <button class="action-btn layers-toggle" id="layersToggle" style="position:absolute; right:20px; top:20px;">
+    Layers
+  </button>
+
+  <div class="layers-panel" id="layersPanel">
+    <h3>Layers</h3>
+    <div id="layersList">
+      <div class="layer-item active"><div class="layer-thumb"></div> Layer 1</div>
+    </div>
+  </div>
+</div>
+
+<div class="statusbar">
+  <div>Canvas: 1200 x 700</div>
+  <div>ARO Draw v1.0</div>
+</div>
+
+<div class="brush-cursor" id="brushCursor"></div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const brushCursor = document.getElementById('brushCursor');
+
+  // State
+  let currentTool = 'pen';
+  let brushSize = 4;
+  let brushOpacity = 1;
+  let currentColor = '#ffffff';
+  let isDrawing = false;
+  let lastX = 0, lastY = 0;
+  let shapeStartX = 0, shapeStartY = 0;
+
+  // History for undo/redo
+  let history = [];
+  let historyIndex = -1;
+  const MAX_HISTORY = 50;
+
+  // Palette colors
+  const colors = [
+    '#ffffff','#cccccc','#888888','#444444','#000000',
+    '#ff4466','#ff6b35','#ffa726','#ffee58','#66bb6a',
+    '#42a5f5','#7c5cfc','#ab47bc','#ec407a','#8d6e63',
+    '#26c6da','#9ccc65','#ff7043','#78909c','#5c6bc0'
+  ];
+
+  // Init
+  function init() {
+    ctx.fillStyle = '#1e1e2e';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    saveState();
+    buildPalette();
+    attachEvents();
+  }
+
+  function buildPalette() {
+    const pal = document.getElementById('palette');
+    colors.forEach(c => {
+      const el = document.createElement('div');
+      el.className = 'palette-color' + (c === currentColor ? ' active' : '');
+      el.style.background = c;
+      el.addEventListener('click', () => {
+        currentColor = c;
+        document.getElementById('colorPreview').style.background = c;
+        document.getElementById('colorPicker').value = c;
+        document.querySelectorAll('.palette-color').forEach(p => p.classList.remove('active'));
+        el.classList.add('active');
+      });
+      pal.appendChild(el);
+    });
+  }
+
+  function saveState() {
+    historyIndex++;
+    history = history.slice(0, historyIndex);
+    history.push(canvas.toDataURL());
+    if (history.length > MAX_HISTORY) {
+      history.shift();
+      historyIndex--;
+    }
+  }
+
+  function undo() {
+    if (historyIndex > 0) {
+      historyIndex--;
+      restoreState();
+    }
+  }
+
+  function redo() {
+    if (historyIndex < history.length - 1) {
+      historyIndex++;
+      restoreState();
+    }
+  }
+
+  function restoreState() {
+    const img = new Image();
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+    };
+    img.src = history[historyIndex];
+  }
+
+  // Snapshot for shape preview
+  let snapshot = null;
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY
+    };
+  }
+
+  function startDraw(e) {
+    e.preventDefault();
+    isDrawing = true;
+    const pos = getPos(e);
+    lastX = pos.x;
+    lastY = pos.y;
+    shapeStartX = pos.x;
+    shapeStartY = pos.y;
+
+    if (['line','rect','circle'].includes(currentTool)) {
+      snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    }
+
+    if (currentTool === 'fill') {
+      floodFill(Math.round(pos.x), Math.round(pos.y), currentColor);
+      saveState();
+      isDrawing = false;
+      return;
+    }
+
+    if (currentTool === 'eyedropper') {
+      pickColor(pos.x, pos.y);
+      isDrawing = false;
+      return;
+    }
+
+    if (currentTool === 'pen' || currentTool === 'eraser') {
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(lastX + 0.1, lastY + 0.1);
+      ctx.strokeStyle = currentTool === 'eraser' ? '#1e1e2e' : currentColor;
+      ctx.lineWidth = brushSize;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.globalAlpha = brushOpacity;
+      ctx.stroke();
+    }
+  }
+
+  function draw(e) {
+    if (!isDrawing) return;
+    e.preventDefault();
+    const pos = getPos(e);
+
+    if (currentTool === 'pen' || currentTool === 'eraser') {
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.strokeStyle = currentTool === 'eraser' ? '#1e1e2e' : currentColor;
+      ctx.lineWidth = brushSize;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.globalAlpha = brushOpacity;
+      ctx.stroke();
+      lastX = pos.x;
+      lastY = pos.y;
+    }
+
+    if (currentTool === 'line') {
+      ctx.putImageData(snapshot, 0, 0);
+      ctx.beginPath();
+      ctx.moveTo(shapeStartX, shapeStartY);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.strokeStyle = currentColor;
+      ctx.lineWidth = brushSize;
+      ctx.lineCap = 'round';
+      ctx.globalAlpha = brushOpacity;
+      ctx.stroke();
+    }
+
+    if (currentTool === 'rect') {
+      ctx.putImageData(snapshot, 0, 0);
+      const w = pos.x - shapeStartX;
+      const h = pos.y - shapeStartY;
+      ctx.strokeStyle = currentColor;
+      ctx.lineWidth = brushSize;
+      ctx.globalAlpha = brushOpacity;
+      ctx.strokeRect(shapeStartX, shapeStartY, w, h);
+    }
+
+    if (currentTool === 'circle') {
+      ctx.putImageData(snapshot, 0, 0);
+      const rx = (pos.x - shapeStartX) / 2;
+      const ry = (pos.y - shapeStartY) / 2;
+      const cx = shapeStartX + rx;
+      const cy = shapeStartY + ry;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, Math.abs(rx), Math.abs(ry), 0, 0, Math.PI * 2);
+      ctx.strokeStyle = currentColor;
+      ctx.lineWidth = brushSize;
+      ctx.globalAlpha = brushOpacity;
+      ctx.stroke();
+    }
+
+    // Update coord display
+    document.getElementById('coordDisplay').textContent =
+      `${Math.round(pos.x)}, ${Math.round(pos.y)}`;
+  }
+
+  function endDraw() {
+    if (isDrawing) {
+      isDrawing = false;
+      ctx.globalAlpha = 1;
+      saveState();
+    }
+  }
+
+  // Flood fill
+  function floodFill(startX, startY, fillColor) {
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+    const w = canvas.width;
+    const h = canvas.height;
+
+    const targetIdx = (startY * w + startX) * 4;
+    const targetR = data[targetIdx], targetG = data[targetIdx+1],
+          targetB = data[targetIdx+2], targetA = data[targetIdx+3];
+
+    const fc = hexToRgb(fillColor);
+    if (targetR === fc.r && targetG === fc.g && targetB === fc.b) return;
+
+    const stack = [[startX, startY]];
+    const visited = new Uint8Array(w * h);
+    const tolerance = 30;
+
+    function match(idx) {
+      return Math.abs(data[idx] - targetR) <= tolerance &&
+             Math.abs(data[idx+1] - targetG) <= tolerance &&
+             Math.abs(data[idx+2] - targetB) <= tolerance &&
+             Math.abs(data[idx+3] - targetA) <= tolerance;
+    }
+
+    while (stack.length) {
+      const [x, y] = stack.pop();
+      const pi = y * w + x;
+      if (x < 0 || x >= w || y < 0 || y >= h || visited[pi]) continue;
+      const idx = pi * 4;
+      if (!match(idx)) continue;
+
+      visited[pi] = 1;
+      data[idx] = fc.r;
+      data[idx+1] = fc.g;
+      data[idx+2] = fc.b;
+      data[idx+3] = 255;
+
+      stack.push([x+1,y],[x-1,y],[x,y+1],[x,y-1]);
+    }
+    ctx.putImageData(imageData, 0, 0);
+  }
+
+  function hexToRgb(hex) {
+    const r = parseInt(hex.slice(1,3), 16);
+    const g = parseInt(hex.slice(3,5), 16);
+    const b = parseInt(hex.slice(5,7), 16);
+    return {r, g, b};
+  }
+
+  function pickColor(x, y) {
+    const px = ctx.getImageData(Math.round(x), Math.round(y), 1, 1).data;
+    const hex = '#' + [px[0], px[1], px[2]].map(v => v.toString(16).padStart(2,'0')).join('');
+    currentColor = hex;
+    document.getElementById('colorPreview').style.background = hex;
+    document.getElementById('colorPicker').value = hex;
+    document.querySelectorAll('.palette-color').forEach(p => p.classList.remove('active'));
+  }
+
+  // Brush cursor
+  function updateBrushCursor(e) {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX || (e.touches && e.touches[0].clientX);
+    const y = e.clientY || (e.touches && e.touches[0].clientY);
+
+    if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+      brushCursor.style.display = 'block';
+      const size = brushSize * (rect.width / canvas.width);
+      brushCursor.style.width = size + 'px';
+      brushCursor.style.height = size + 'px';
+      brushCursor.style.left = x + 'px';
+      brushCursor.style.top = y + 'px';
+    } else {
+      brushCursor.style.display = 'none';
+    }
+  }
+
+  function attachEvents() {
+    // Canvas draw events
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', endDraw);
+    canvas.addEventListener('mouseleave', endDraw);
+    canvas.addEventListener('touchstart', startDraw, {passive: false});
+    canvas.addEventListener('touchmove', draw, {passive: false});
+    canvas.addEventListener('touchend', endDraw);
+
+    // Brush cursor
+    document.addEventListener('mousemove', updateBrushCursor);
+
+    // Tool buttons
+    document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentTool = btn.dataset.tool;
+        document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    // Brush size
+    const sizeSlider = document.getElementById('brushSize');
+    sizeSlider.addEventListener('input', () => {
+      brushSize = parseInt(sizeSlider.value);
+      document.getElementById('brushSizeVal').textContent = brushSize;
+    });
+
+    // Opacity
+    const opSlider = document.getElementById('opacity');
+    opSlider.addEventListener('input', () => {
+      brushOpacity = parseInt(opSlider.value) / 100;
+      document.getElementById('opacityVal').textContent = opSlider.value;
+    });
+
+    // Color picker
+    const picker = document.getElementById('colorPicker');
+    picker.addEventListener('input', () => {
+      currentColor = picker.value;
+      document.getElementById('colorPreview').style.background = picker.value;
+      document.querySelectorAll('.palette-color').forEach(p => p.classList.remove('active'));
+    });
+
+    // Undo/Redo
+    document.getElementById('undoBtn').addEventListener('click', undo);
+    document.getElementById('redoBtn').addEventListener('click', redo);
+
+    // Clear
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      if (confirm('캔버스를 초기화할까요?')) {
+        ctx.fillStyle = '#1e1e2e';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        saveState();
+      }
+    });
+
+    // Save
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'aro_draw_' + Date.now() + '.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+
+    // Layers toggle
+    document.getElementById('layersToggle').addEventListener('click', () => {
+      document.getElementById('layersPanel').classList.toggle('open');
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT') return;
+
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); undo(); }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'y') { e.preventDefault(); redo(); }
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); document.getElementById('saveBtn').click(); }
+
+      const toolMap = { b:'pen', e:'eraser', l:'line', r:'rect', c:'circle', g:'fill', i:'eyedropper' };
+      if (toolMap[e.key]) {
+        currentTool = toolMap[e.key];
+        document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector(`[data-tool="${currentTool}"]`).classList.add('active');
+      }
+
+      // Brush size with [ ]
+      if (e.key === '[') { sizeSlider.value = Math.max(1, brushSize - 2); sizeSlider.dispatchEvent(new Event('input')); }
+      if (e.key === ']') { sizeSlider.value = Math.min(80, brushSize + 2); sizeSlider.dispatchEvent(new Event('input')); }
+    });
+
+    // Coord display on mouse move over canvas
+    canvas.addEventListener('mousemove', (e) => {
+      const pos = getPos(e);
+      document.getElementById('coordDisplay').textContent =
+        `${Math.round(pos.x)}, ${Math.round(pos.y)}`;
+    });
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
