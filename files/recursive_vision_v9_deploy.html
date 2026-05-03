@@ -1,0 +1,2184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Seeds of Seeing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Noto+Serif+KR:wght@300;400&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════
+   TOKENS
+══════════════════════════════════════════════════════ */
+:root {
+  --bg:       #f4f3f0;
+  --surface:  #eceae5;
+  --card:     #f4f3f0;
+  --ink:      #1a1914;
+  --ink-70:   rgba(26,25,20,0.70);
+  --ink-40:   rgba(26,25,20,0.40);
+  --ink-18:   rgba(26,25,20,0.18);
+  --ink-08:   rgba(26,25,20,0.08);
+  --accent:   #2a3a5c;
+  --accent-t: rgba(42,58,92,0.35);
+  --rule:     rgba(26,25,20,0.14);
+  --serif:    'Libre Baskerville', Georgia, serif;
+  --mono:     'Source Code Pro', 'Courier New', monospace;
+  --serif-kr: 'Noto Serif KR', Georgia, serif;
+  --max:      1080px;
+  --pad:      60px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  font-family: var(--mono);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: clip;
+  padding: 0 var(--pad) 220px;
+}
+
+/* ── Header ──────────────────────────────────────────── */
+#header {
+  max-width: var(--max); margin: 0 auto;
+  padding: 56px 0 40px;
+  border-bottom: 1.5px solid var(--ink);
+}
+.header-top {
+  display: flex; justify-content: space-between;
+  align-items: flex-end; margin-bottom: 16px;
+}
+.header-tag {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: .55em; color: var(--ink-70);
+  text-transform: uppercase;
+}
+.header-index {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: .3em; color: var(--ink-70);
+  text-transform: uppercase;
+}
+#header h1 {
+  font-family: var(--serif);
+  font-size: 72px; font-weight: 400;
+  letter-spacing: -0.03em; line-height: .92;
+  color: var(--ink);
+}
+.header-bottom {
+  display: flex; justify-content: space-between;
+  align-items: baseline; margin-top: 14px;
+}
+.header-author {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: .4em; color: var(--ink-70);
+  text-transform: uppercase;
+}
+.header-sub {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: .12em; color: var(--ink-70);
+  text-align: right; line-height: 1.7;
+}
+
+/* ── Controls ────────────────────────────────────────── */
+#controls {
+  position: sticky; top: 0; z-index: 40;
+  background: var(--bg);
+  backdrop-filter: none;
+  border-bottom: none;
+}
+.controls-inner {
+  max-width: var(--max); margin: 0 auto;
+  padding: 12px 0;
+  display: flex; gap: 18px; align-items: center; flex-wrap: wrap;
+}
+.ctrl-label {
+  font-family: var(--mono); font-size: 8px;
+  letter-spacing: .5em; color: var(--ink-40);
+  text-transform: uppercase; white-space: nowrap;
+}
+#seed-input {
+  flex: 1; min-width: 180px;
+  background: transparent; border: none; outline: none;
+  border-bottom: 1px solid var(--ink-40);
+  font-family: var(--mono); font-weight: 400;
+  font-size: 14px; color: var(--ink);
+  padding: 4px 0; letter-spacing: .02em;
+  transition: border-color .15s;
+}
+#seed-input:focus { border-bottom-color: var(--ink); }
+#seed-input::placeholder { color: var(--ink-40); }
+#iter-input {
+  width: 38px; background: transparent; border: none; outline: none;
+  border-bottom: 1px solid var(--ink-18);
+  font-family: var(--mono); font-size: 12px; color: var(--ink-70);
+  padding: 4px 2px; text-align: center;
+}
+.btn {
+  background: transparent;
+  border: 1px solid var(--ink-40);
+  color: var(--ink);
+  padding: 7px 16px;
+  font-family: var(--mono); font-weight: 500;
+  font-size: 8px; letter-spacing: .35em; text-transform: uppercase;
+  cursor: pointer; transition: all .14s;
+}
+.btn:hover:not(:disabled) {
+  background: var(--ink); color: var(--bg); border-color: var(--ink);
+}
+.btn:disabled { opacity: .2; cursor: not-allowed; }
+.btn-run {
+  border-color: var(--ink); color: var(--ink);
+  background: var(--ink); color: var(--bg);
+}
+.btn-run:disabled { background: transparent; color: var(--ink-40); border-color: var(--ink-40); }
+.btn-run:not(:disabled):hover { background: var(--accent); border-color: var(--accent); }
+.btn-stop { border-color: var(--ink-40); color: var(--ink-70); }
+.btn-stop:not(:disabled):hover { border-color: rgba(140,40,30,.6); color: rgba(140,40,30,.9); background: transparent; }
+.btn-small {
+  padding: 3px 9px; font-size: 7px; letter-spacing: .22em;
+  border-color: var(--ink-40); color: var(--ink-70);
+}
+.btn-small:hover:not(:disabled) { border-color: var(--ink-40); color: var(--ink-70); background: transparent; }
+#export-btn { display: none; margin-left: auto; }
+#export-btn.visible { display: inline-block; }
+
+/* ── Steps ───────────────────────────────────────────── */
+#steps {
+  max-width: var(--max); margin: 64px auto 0;
+  display: flex; flex-direction: column; gap: 0;
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 96px 1fr 1fr;
+  gap: 0;
+  padding: 48px 0;
+  opacity: 0; transition: opacity 1.1s;
+  align-items: start;
+}
+.step.active { opacity: 1; }
+
+/* ── Step number column ───────────────────────────────── */
+.step-num {
+  padding-top: 2px;
+  display: flex; flex-direction: column;
+}
+.step-num .num-big {
+  font-family: var(--mono); font-size: 10px;
+  font-weight: 500; letter-spacing: .1em;
+  color: var(--ink-70); line-height: 1;
+}
+.step-num .num-label {
+  font-family: var(--mono); font-size: 7px;
+  letter-spacing: .5em; color: var(--ink-40);
+  text-transform: uppercase; margin-top: 2px;
+}
+.step-num .drift-metric { margin-top: 32px; }
+.dm-label {
+  display: block; font-family: var(--mono); font-size: 7px;
+  letter-spacing: .05em;
+  color: var(--ink-70); margin-bottom: 8px;
+  word-break: keep-all; white-space: normal; line-height: 1.6;
+  text-transform: none;
+}
+.dm-val {
+  display: block; font-family: var(--serif);
+  font-size: 22px; letter-spacing: -0.02em;
+  line-height: 1; margin-bottom: 6px;
+}
+.dm-bar-track {
+  display: block; width: 40px; height: 1px;
+  background: var(--ink-18); margin-bottom: 5px;
+}
+.dm-bar-fill {
+  display: block; height: 100%;
+  background: var(--accent);
+  transition: width .9s cubic-bezier(.4,0,.2,1);
+}
+.dm-ko {
+  display: block; font-family: var(--serif-kr);
+  font-size: 8px; color: var(--ink-70); letter-spacing: .01em;
+  word-break: keep-all; line-height: 1.5;
+}
+
+/* ── Image column ─────────────────────────────────────── */
+.vis-wrap { padding-right: 16px; }
+.vis-box {
+  position: relative; aspect-ratio: 1/1; width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--ink-18);
+  overflow: hidden;
+  opacity: 0; transition: opacity 1.2s ease-in;
+}
+.vis-box.visible { opacity: 1; }
+.vis-box.loading { opacity: 1; }
+.vis-box svg { width: 100%; height: 100%; display: block; }
+.vis-box.loading::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(26,25,20,0.04) 50%,
+    transparent 65%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+.vis-seed-overlay {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 14px;
+  padding: 24px;
+  pointer-events: none;
+  animation: pulse 2.2s ease-in-out infinite;
+}
+.vis-seed-overlay .overlay-label {
+  font-family: var(--mono); font-size: 7px;
+  letter-spacing: .55em; text-transform: uppercase;
+  color: var(--ink); opacity: 0.35;
+}
+.vis-seed-overlay .overlay-seed {
+  font-family: var(--serif); font-style: italic;
+  font-size: 13px; line-height: 1.75;
+  color: var(--ink); opacity: 0.22;
+  text-align: center;
+  letter-spacing: .01em;
+  word-break: break-word;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.vis-actions { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+
+/* ── Text column ──────────────────────────────────────── */
+.text-box {
+  padding: 0 0 0 20px;
+  border-left: none;
+  display: flex; flex-direction: column;
+  min-height: 0;
+}
+.text-box.loading { opacity: 1; }
+.text-box.loading .text-content {
+  color: var(--ink-40);
+  animation: pulse 1.8s ease-in-out infinite;
+}
+.text-box.loading .text-prefix {
+  animation: pulse 2.2s ease-in-out infinite;
+}
+.text-prefix {
+  font-family: var(--mono); font-size: 7px;
+  letter-spacing: .55em; text-transform: uppercase;
+  color: var(--ink-70); margin-bottom: 18px;
+}
+.text-content {
+  font-family: var(--serif);
+  font-size: 20px; line-height: 1.75;
+  color: var(--ink); flex: 1;
+  letter-spacing: .005em;
+}
+.text-content-ko {
+  margin-top: 20px; padding-top: 18px;
+  border-top: none;
+  font-family: var(--serif-kr);
+  font-size: 14px; line-height: 1.9;
+  color: var(--ink-70); letter-spacing: .025em; min-height: 1px;
+}
+.text-content-ko:empty { display: none; }
+.text-content-ko.loading-ko::before {
+  content: '번역 중';
+  font-size: 10px; color: var(--ink-40); letter-spacing: .12em;
+}
+.text-actions { display: flex; gap: 5px; margin-top: 18px; }
+
+/* ── Cursor ───────────────────────────────────────────── */
+.typing-cursor {
+  display: inline-block; width: 2px; height: 1em;
+  background: var(--ink); margin-left: 2px;
+  animation: blink .8s infinite; vertical-align: text-bottom;
+}
+@keyframes blink { 0%,45%{opacity:1} 55%,100%{opacity:0} }
+
+/* ── Seed label ───────────────────────────────────────── */
+.seed-label {
+  display: inline-block; margin-top: 20px;
+  font-family: var(--mono); font-size: 7px;
+  letter-spacing: .4em; text-transform: uppercase;
+  color: var(--accent); opacity: 0;
+  animation: seedAppear .5s forwards;
+}
+@keyframes seedAppear { from{opacity:0;transform:translateY(-2px)} to{opacity:1;transform:translateY(0)} }
+.seed-label.flying {
+  position: fixed; z-index: 60; margin: 0; pointer-events: none;
+  transition: top 1.3s cubic-bezier(.4,.1,.3,1),
+              left 1.3s cubic-bezier(.4,.1,.3,1),
+              opacity 1.3s ease-in,
+              transform 1.3s cubic-bezier(.4,.1,.3,1);
+}
+.seed-label.landing { opacity: 0; transform: scale(.7); }
+.step-num.seed-received .num-big { animation: seedLand .7s ease-out; }
+@keyframes seedLand {
+  0%{color:rgba(26,25,20,.4)} 40%{color:var(--accent)} 100%{color:rgba(26,25,20,.4)}
+}
+
+/* ── Arrow ────────────────────────────────────────────── */
+.arrow {
+  max-width: var(--max); margin: 0 auto;
+  display: grid;
+  grid-template-columns: 96px 1fr 1fr;
+  padding: 16px 0 0;
+  align-items: center;
+}
+.arrow-glyph {
+  font-family: var(--serif);
+  font-size: 28px; line-height: 1;
+  color: var(--ink-40);
+  padding-top: 0;
+  align-self: center;
+}
+.arrow-rule { display: none; }
+.arrow-text {
+  grid-column: 2 / 4;
+  font-family: var(--mono); font-size: 8px;
+  letter-spacing: .2em; color: var(--ink-70);
+  text-transform: uppercase; padding-left: 0;
+  padding-top: 2px;
+}
+
+/* ── Particles ────────────────────────────────────────── */
+.seed-particle {
+  position: fixed; width: 3px; height: 3px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 5px var(--accent-t);
+  pointer-events: none; z-index: 70;
+  transform: translate(-50%,-50%); opacity: 1;
+}
+.vis-box.particle-orbit {
+  border-color: var(--accent-t);
+  transition: border-color .3s;
+}
+.vis-box.particle-land { animation: visGlow .5s ease-out; }
+@keyframes visGlow {
+  0%  {border-color:var(--rule)}
+  45% {border-color:var(--accent-t)}
+  100%{border-color:var(--rule)}
+}
+
+/* ── Misc ─────────────────────────────────────────────── */
+.error { color: rgba(140,40,30,.8); font-family:var(--mono); font-size:9px; padding:16px; letter-spacing:.08em; }
+@keyframes pulse { 0%,100%{opacity:.3} 50%{opacity:.9} }
+#probe-banner { display: none; }
+
+#ad-area { max-width: var(--max); margin: 28px auto 0; }
+#ad-diagnostic {
+  max-width: var(--max);
+  margin: 14px auto 0;
+  padding: 10px 12px;
+}
+#ad-area.hidden { display: none; }
+#ad-area-title {
+  font-family: var(--mono);
+  font-size: 7px;
+  letter-spacing: .45em;
+  color: var(--ink-70);
+  text-transform: uppercase;
+  margin: 0 0 8px;
+}
+#ad-slot-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+#ad-slot-host {
+  background: var(--surface);
+  border: 1px dashed var(--ink-18);
+  min-height: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+.ad-placeholder {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: .22em;
+  color: var(--ink-40);
+  text-align: center;
+  text-transform: uppercase;
+}
+#ad-slot-frame {
+  border: 1px solid var(--ink-18);
+  padding: 10px;
+  background: var(--surface);
+}
+.ad-slot-frame + .ad-slot-frame {
+  margin-top: 6px;
+}
+.ad-slot-frame.hidden {
+  display: none;
+}
+.ad-diagnostic {
+  font-family: var(--mono);
+  font-size: 8px;
+  line-height: 1.45;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  border: 1px dashed var(--ink-20);
+  background: #f4f3f0;
+  color: var(--ink-70);
+}
+.ad-diagnostic.hidden {
+  display: none;
+}
+.ad-diagnostic-info {
+  border-color: var(--ink-20);
+  color: var(--ink-70);
+}
+.ad-diagnostic-warn {
+  border-color: rgba(168, 118, 20, 0.55);
+  color: rgba(148, 86, 14, 0.95);
+  background: #f9f3e8;
+}
+.ad-diagnostic-error {
+  border-color: rgba(170, 30, 30, 0.45);
+  color: rgba(120, 23, 23, 0.95);
+  background: #f9efed;
+}
+.ad-diagnostic-success {
+  border-color: rgba(26, 122, 57, 0.45);
+  color: rgba(24, 92, 47, 0.95);
+  background: #eef5ef;
+}
+.ad-slot-label {
+  font-family: var(--mono);
+  font-size: 7px;
+  letter-spacing: .24em;
+  color: var(--ink-40);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+#site-legal {
+  max-width: var(--max);
+  margin: 18px auto 110px;
+  padding: 14px 0 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 7px;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: var(--ink-70);
+}
+#site-legal > .site-links {
+  display: inline-flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+#site-legal a {
+  color: var(--ink-70);
+  text-decoration: none;
+  border-bottom: 1px solid var(--ink-20);
+}
+#site-legal a:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}#ad-slot-host-leader,
+#ad-slot-host-rect {
+  display: block;
+}
+#ad-slot-host-leader .adsbygoogle {
+  min-height: 90px;
+}
+#ad-slot-host-rect .adsbygoogle {
+  min-height: 250px;
+}
+
+ins.adsbygoogle {
+  width: 100% !important;
+}
+
+@media (max-width: 600px) {
+  #ad-area {
+    margin-top: 18px;
+  }
+  #ad-slot-layout {
+    gap: 10px;
+  }
+  .ad-slot-frame {
+    padding: 8px 6px;
+  }
+  .ad-slot-frame.hidden {
+    display: none;
+  }
+  #ad-slot-host-leader .adsbygoogle,
+  #ad-slot-host-rect .adsbygoogle {
+    max-width: 100% !important;
+    min-height: auto;
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   BOTTOM DOCK — flow bar + status
+══════════════════════════════════════════════════════ */
+#bottom-dock {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(244,243,240,0.97);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--rule);
+  z-index: 50;
+}
+#flow-bar {
+  padding: 7px var(--pad) 5px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: none;
+  transition: opacity .6s;
+}
+#flow-bar.empty { opacity: .15; }
+.flow-label {
+  font-family: var(--mono); font-size: 7px;
+  letter-spacing: .5em; color: var(--ink-70);
+  text-transform: uppercase; white-space: nowrap; flex-shrink: 0;
+}
+#flow-track {
+  flex: 1; display: flex; gap: 4px;
+  align-items: center; min-height: 42px;
+}
+.flow-thumb {
+  flex: 1 1 0; min-width: 0; max-width: 42px;
+  aspect-ratio: 1/1;
+  background: var(--surface);
+  border: 1px solid var(--ink);
+  cursor: pointer; position: relative; overflow: hidden;
+  transition: opacity .2s, border-color .2s;
+  opacity: 0; animation: thumbFadeIn .5s forwards;
+}
+.flow-thumb:hover { opacity: .8; }
+.flow-thumb.current { border-color: var(--accent); border-width: 2px; }
+.flow-thumb svg { width:100%; height:100%; display:block; pointer-events:none; }
+.flow-thumb .thumb-num {
+  position: absolute; top: 2px; left: 3px;
+  font-family: var(--mono); font-size: 7px;
+  color: var(--ink); pointer-events: none;
+}
+@keyframes thumbFadeIn { from{opacity:0} to{opacity:1} }
+
+#status-bar {
+  padding: 8px var(--pad);
+  display: flex; gap: 20px; align-items: center;
+}
+#status-text {
+  flex: 1; font-family: var(--mono);
+  font-size: 7px; letter-spacing: .45em;
+  color: var(--ink-70); text-transform: uppercase;
+}
+#progress-track {
+  width: 120px; height: 1px;
+  background: var(--ink-18); overflow: hidden;
+}
+#progress-fill {
+  height: 100%; width: 0%;
+  background: var(--accent);
+  transition: width .3s;
+}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="header-top">
+    <span class="header-tag">Seeds of Seeing</span>
+    <span class="header-index">Recursive Vision / AI Perception Drift <button id="seeds-keys-btn" class="btn-small" style="margin-left:10px; vertical-align:middle; padding:4px 8px; font-size:7px; letter-spacing:0.22em;">⚙ KEYS</button> <button id="ad-config-btn" class="btn-small" style="margin-left:6px; vertical-align:middle; padding:4px 8px; font-size:7px; letter-spacing:0.22em;">📢 ADS</button></span>
+  </div>
+  <h1>Seeds of<br>Seeing</h1>
+  <div class="header-bottom">
+    <span class="header-author">JIA JUN</span>
+    <span class="header-sub">each sight becomes a seed<br>지각이 씨앗이 된다</span>
+  </div>
+</div>
+
+<div id="controls">
+  <div class="controls-inner">
+    <span class="ctrl-label">Seed</span>
+    <input id="seed-input" type="text" value="a flower in bloom" placeholder="enter a seed phrase" />
+    <span class="ctrl-label">Iter</span>
+    <input id="iter-input" type="number" value="4" min="2" max="12" />
+    <label style="display:flex; align-items:center; gap:6px; font-size:7px; letter-spacing:.32em; text-transform:uppercase; color:var(--ink-40); white-space:nowrap;">
+      <input id="motion-toggle" type="checkbox" checked style="width:11px;height:11px;" />
+      Motion
+    </label>
+    <button id="start-btn" class="btn btn-run">▶ Run</button>
+    <button id="stop-btn" class="btn btn-stop" disabled>■ Stop</button>
+    <button id="export-btn" class="btn">⬇ Export</button>
+  </div>
+</div>
+
+  <div id="probe-banner"></div>
+  <div id="ad-diagnostic" class="ad-diagnostic hidden" aria-live="polite"></div>
+  <div id="ad-area" aria-live="polite">
+    <div id="ad-area-title">Advertisement</div>
+    <div id="ad-slot-layout">
+      <section id="ad-slot-host-leader" class="ad-slot-frame">
+        <div class="ad-slot-label">레이아웃 A: 728x90 (상단)</div>
+        <div class="ad-placeholder">ADS 비활성화 상태입니다. ADS에서 Publisher ID/Slot ID를 설정해 주세요.</div>
+      </section>
+      <section id="ad-slot-host-rect" class="ad-slot-frame">
+        <div class="ad-slot-label">레이아웃 B: 300x250 (중단)</div>
+        <div class="ad-placeholder">레이아웃 B는 별도 Slot ID를 추가하세요.</div>
+      </section>
+    </div>
+  </div>
+  <div id="steps"></div>
+
+<footer id="site-legal">
+  <div class="site-links">
+    <a href="/privacy-policy.html">Privacy Policy</a>
+    <a href="/terms-of-service.html">Terms</a>
+    <a href="/contact.html">Contact</a>
+  </div>
+  <span>© Seeds of Seeing</span>
+</footer>
+
+<div id="bottom-dock">
+  <div id="flow-bar" class="empty">
+    <div class="flow-label">flow</div>
+    <div id="flow-track"></div>
+  </div>
+  <div id="status-bar">
+    <span id="status-text">ready — enter a seed and press run</span>
+    <div id="progress-track"><div id="progress-fill"></div></div>
+  </div>
+</div>
+
+<script>
+
+const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com';
+const GEMINI_MODEL = 'gemini-2.5-flash';
+const KEY_STORAGE = {
+  session: 'rv9-session-key-v9',
+  local: 'rv9-local-key-v9',
+  remember: 'rv9-key-remember-v9'
+};
+let apiKey = '';
+const AD_CONFIG_KEY = 'rv9-ad-config-v9';
+const MOTION_ENABLED_KEY = 'rv9-motion-enabled-v9';
+const DEFAULT_AD_CONFIG = {
+  enabled: true,
+  clientId: 'ca-pub-8263634312399744',
+  slotId: '8077959277',
+  slotIdLeaderboard: '8077959277',
+  slotIdRect: '1561704738',
+  responsive: true
+};
+let adConfig = {
+  ...DEFAULT_AD_CONFIG
+};
+let motionEnabled = true;
+
+function sanitizePublisherId(value) {
+  return String(value || '').replace(/[^a-zA-Z0-9-]/g, '');
+}
+
+function sanitizeAdSlotId(value) {
+  return String(value || '').replace(/[^0-9]/g, '');
+}
+
+function getStoredAdConfig() {
+  const fallback = {
+    ...DEFAULT_AD_CONFIG
+  };
+  try {
+    const raw = localStorage.getItem(AD_CONFIG_KEY);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw) || {};
+    const slotPrimary = sanitizeAdSlotId(parsed.slotId);
+    const slotLeaderboard = sanitizeAdSlotId(parsed.slotIdLeaderboard || parsed.slotLeaderboard || '');
+    const slotRect = sanitizeAdSlotId(parsed.slotIdRect || parsed.slotRect || parsed.slotSquare || parsed.slotRectangle || '');
+
+    return {
+      enabled: parsed.enabled === undefined ? fallback.enabled : Boolean(parsed.enabled),
+      clientId: sanitizePublisherId(parsed.clientId || fallback.clientId),
+      slotId: slotPrimary || sanitizeAdSlotId(fallback.slotId),
+      slotIdLeaderboard: slotLeaderboard || slotPrimary || sanitizeAdSlotId(fallback.slotIdLeaderboard),
+      slotIdRect: slotRect || sanitizeAdSlotId(fallback.slotIdRect),
+      responsive: parsed.responsive === false ? false : true
+    };
+  } catch (e) {
+    return fallback;
+  }
+}
+
+function getStoredMotionEnabled() {
+  try {
+    const raw = localStorage.getItem(MOTION_ENABLED_KEY);
+    if (raw === null) return true;
+    return raw === '1';
+  } catch (_e) {
+    return true;
+  }
+}
+
+function saveMotionEnabled(enabled) {
+  motionEnabled = Boolean(enabled);
+  try {
+    localStorage.setItem(MOTION_ENABLED_KEY, motionEnabled ? '1' : '0');
+  } catch (_e) {
+    // ignore storage exceptions
+  }
+}
+
+function saveAdConfig(next) {
+  const slotId = sanitizeAdSlotId(next.slotId);
+  const slotIdLeaderboard = sanitizeAdSlotId(next.slotIdLeaderboard);
+  const slotIdRect = sanitizeAdSlotId(next.slotIdRect);
+  const safeEnabled = Boolean(next.enabled);
+  const safe = {
+    enabled: safeEnabled,
+    clientId: sanitizePublisherId(next.clientId),
+    slotId,
+    slotIdLeaderboard: slotIdLeaderboard || slotId,
+    slotIdRect,
+    responsive: next.responsive !== false
+  };
+  adConfig = safe;
+  if (safeEnabled && !safe.clientId) safe.enabled = false;
+  if (safeEnabled && !safe.slotId && !safe.slotIdLeaderboard && !safe.slotIdRect) safe.enabled = false;
+  localStorage.setItem(AD_CONFIG_KEY, JSON.stringify(safe));
+}
+
+function clearAdConfig() {
+  const reset = {
+    enabled: false,
+    clientId: '',
+    slotId: '',
+    slotIdLeaderboard: '',
+    slotIdRect: '',
+    responsive: true
+  };
+  try {
+    localStorage.setItem(AD_CONFIG_KEY, JSON.stringify(reset));
+  } catch (_e) {
+    localStorage.removeItem(AD_CONFIG_KEY);
+  }
+  adConfig = reset;
+}
+
+async function ensureAdsbyGoogleScript(clientId) {
+  if (window.adsbygoogle) return true;
+  if (!clientId) return false;
+
+  return new Promise((resolve) => {
+    const script = document.createElement('script');
+    script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(clientId)}`;
+    script.crossOrigin = 'anonymous';
+    script.async = true;
+    script.onload = () => resolve(Boolean(window.adsbygoogle));
+    script.onerror = () => resolve(false);
+    document.head.appendChild(script);
+  });
+}
+
+function setAdDiagnostic(message, tone = 'info') {
+  const el = document.getElementById('ad-diagnostic');
+  if (!el) return;
+
+  if (!message) {
+    el.className = 'ad-diagnostic hidden';
+    el.textContent = '';
+    return;
+  }
+
+  const allowedTones = ['info', 'warn', 'error', 'success'];
+  const finalTone = allowedTones.includes(tone) ? tone : 'info';
+  el.textContent = message;
+  el.className = `ad-diagnostic ad-diagnostic-${finalTone}`;
+}
+
+function getAdRenderState(frame) {
+  const slot = frame.querySelector('ins.adsbygoogle');
+  if (!slot) return { valid: false, reason: 'missing-slot' };
+
+  const status = String(slot.getAttribute('data-ad-status') || '').toLowerCase();
+  if (status === 'filled') return { valid: true, reason: 'filled', status };
+  if (status === 'unfilled') return { valid: false, reason: 'unfilled', status };
+
+  const hasIframe = !!slot.querySelector('iframe');
+  if (hasIframe) return { valid: true, reason: 'iframe', status };
+  return { valid: false, reason: 'pending', status };
+}
+
+async function checkAdsTxtCompliance() {
+  try {
+    const response = await fetch('/ads.txt', { cache: 'no-store' });
+    if (!response.ok) {
+      return { ok: false, reason: `ads.txt HTTP ${response.status}` };
+    }
+    const text = (await response.text()).toLowerCase();
+    const pubId = String(adConfig.clientId || DEFAULT_AD_CONFIG.clientId || '').toLowerCase();
+    if (!pubId) {
+      return { ok: false, reason: 'Publisher ID is empty' };
+    }
+    if (!text.includes(pubId)) {
+      return { ok: false, reason: 'ads.txt does not include this publisher id' };
+    }
+    return { ok: true };
+  } catch (_e) {
+    return { ok: false, reason: 'ads.txt fetch failed' };
+  }
+}
+
+async function renderAds() {
+  const leadFrame = document.getElementById('ad-slot-host-leader');
+  const rectFrame = document.getElementById('ad-slot-host-rect');
+  const adArea = document.getElementById('ad-area');
+  if (!leadFrame || !rectFrame || !adArea) return;
+
+  setAdDiagnostic('');
+  const adsTxtState = await checkAdsTxtCompliance();
+  let adsTxtWarningShown = false;
+  if (!adsTxtState.ok && adConfig.enabled) {
+    setAdDiagnostic(`ads.txt 경고: ${adsTxtState.reason}. AdSense 승인 반영 전에 광고가 채워지지 않을 수 있습니다.`, 'warn');
+    adsTxtWarningShown = true;
+  }
+
+  const ensureFrame = (frame, message) => {
+    const existing = frame.querySelector('.ad-slot-body');
+    if (existing) existing.remove();
+    const body = document.createElement('div');
+    body.className = 'ad-slot-body';
+    const msg = document.createElement('div');
+    msg.className = 'ad-placeholder';
+    msg.textContent = message;
+    body.appendChild(msg);
+    frame.appendChild(body);
+  };
+
+  const insertSlot = (frame, label, slotId, options) => {
+    frame.innerHTML = '';
+    const labelEl = document.createElement('div');
+    labelEl.className = 'ad-slot-label';
+    labelEl.textContent = label;
+    frame.appendChild(labelEl);
+
+    const body = document.createElement('div');
+    body.className = 'ad-slot-body';
+    if (!slotId) {
+      const msg = document.createElement('div');
+      msg.className = 'ad-placeholder';
+      msg.textContent = `${label} Slot ID가 비어 있습니다.`;
+      body.appendChild(msg);
+      frame.appendChild(body);
+      return null;
+    }
+
+    const ins = document.createElement('ins');
+    ins.className = 'adsbygoogle';
+    ins.style = options.style;
+    ins.setAttribute('data-ad-client', adConfig.clientId);
+    ins.setAttribute('data-ad-slot', slotId);
+    ins.setAttribute('data-ad-format', options.format);
+    ins.setAttribute('data-full-width-responsive', adConfig.responsive ? 'true' : 'false');
+    body.appendChild(ins);
+    frame.appendChild(body);
+    return true;
+  };
+
+  leadFrame.classList.add('hidden');
+  rectFrame.classList.add('hidden');
+
+  if (!adConfig.enabled) {
+    adArea.classList.add('hidden');
+    setAdDiagnostic('ADS 비활성화 상태입니다. ADS 설정에서 광고 노출을 켜주세요.', 'warn');
+    return;
+  }
+
+  if (!adConfig.clientId) {
+    adArea.classList.add('hidden');
+    setAdDiagnostic('Publisher ID가 없습니다. ADS 설정에서 ca-pub-...를 입력하세요.', 'warn');
+    return;
+  }
+
+  const leaderSlot = sanitizeAdSlotId(adConfig.slotIdLeaderboard || adConfig.slotId);
+  const rectSlot = sanitizeAdSlotId(adConfig.slotIdRect);
+  if (!leaderSlot && !rectSlot) {
+    adArea.classList.add('hidden');
+    setAdDiagnostic('Slot ID가 없습니다. Layout A/B 중 최소 1개는 필수로 입력해 주세요.', 'warn');
+    return;
+  }
+
+  adArea.classList.remove('hidden');
+  const frameTargets = [];
+
+  if (leaderSlot) {
+    const hasLeader = insertSlot(leadFrame, '레이아웃 A: 728x90 (상단)', leaderSlot, {
+      format: 'auto',
+      style: 'display:block; width:100%; max-width:728px; min-height:90px;'
+    });
+    if (hasLeader) {
+      leadFrame.classList.remove('hidden');
+      frameTargets.push(leadFrame);
+    }
+  } else {
+    // 슬롯 B만 등록된 경우, 상단 슬롯 하나만 단일 노출(레이아웃 B)
+    const fallbackHasRect = insertSlot(leadFrame, '광고 슬롯 (단일 노출)', rectSlot, {
+      format: 'rectangle',
+      style: 'display:block; width:100%; max-width:300px; height:250px; margin: 0 auto;'
+    });
+    if (fallbackHasRect) {
+      leadFrame.classList.remove('hidden');
+      frameTargets.push(leadFrame);
+    }
+  }
+
+  if (rectSlot) {
+    const hasRect = insertSlot(rectFrame, '레이아웃 B: 300x250 (중단)', rectSlot, {
+      format: 'rectangle',
+      style: 'display:block; width:100%; max-width:300px; height:250px; margin: 0 auto;'
+    });
+    if (hasRect && leaderSlot) {
+      rectFrame.classList.remove('hidden');
+      frameTargets.push(rectFrame);
+    }
+  }
+
+  const loaded = await ensureAdsbyGoogleScript(adConfig.clientId);
+  if (!loaded) {
+    ensureFrame(leadFrame, '광고 스크립트 로드 실패(네트워크/CSP/차단기)를 확인하세요.');
+    ensureFrame(rectFrame, '광고 스크립트 로드 실패(네트워크/CSP/차단기)를 확인하세요.');
+    setAdDiagnostic('광고 스크립트 로드 실패. AdBlock/광고차단기 또는 네트워크 정책을 먼저 확인하세요.', 'error');
+    return;
+  }
+
+  if (!frameTargets.length) {
+    adArea.classList.add('hidden');
+    setAdDiagnostic('노출 가능한 슬롯이 없습니다. ADS에서 Slot ID 설정을 확인하세요.', 'warn');
+    return;
+  }
+
+  let renderFailed = false;
+  for (let i = 0; i < frameTargets.length; i += 1) {
+    try {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch (_) {
+      renderFailed = true;
+    }
+  }
+  if (renderFailed) {
+    frameTargets.forEach((frame) => {
+      ensureFrame(frame, '광고 렌더링 준비 중입니다. 잠시 후 다시 시도하세요.');
+    });
+    adArea.classList.add('hidden');
+    setAdDiagnostic('adsbygoogle.push() 실행 중 오류. 브라우저 확장, CSP, 스크립트 충돌 가능성을 확인하세요.', 'error');
+    return;
+  }
+
+  await new Promise((resolve) => setTimeout(resolve, 1400));
+  const renderStates = frameTargets.map(getAdRenderState);
+  const hasFilled = renderStates.some((state) => state.valid);
+  const allUnfilled = renderStates.length > 0 && renderStates.every((state) => state.reason === 'unfilled');
+  const somePending = renderStates.some((state) => state.reason === 'pending');
+  const someUnfilled = renderStates.some((state) => state.reason === 'unfilled');
+
+  if (hasFilled && !someUnfilled) {
+    setAdDiagnostic('ADS 슬롯 렌더링이 요청되었고 현재 상태가 정상입니다. (계속 안 보이면 광고 수요/차단기를 확인)', 'success');
+    setTimeout(() => setAdDiagnostic('', 'info'), 3000);
+    return;
+  }
+
+  if (allUnfilled) {
+    const adsTxtMessage = adsTxtState.ok ? '' : adsTxtWarningShown ? 'ads.txt 점검 후에도,' : 'ads.txt(현재 점검 필요),';
+    setAdDiagnostic(
+      `광고가 채워지지 않았습니다.${adsTxtMessage ? ` ${adsTxtMessage} ` : ' '}도메인 승인, 슬롯 형식, 광고차단기, 수요 부족 가능성을 확인하세요.`,
+      'warn'
+    );
+    return;
+  }
+
+  if (someUnfilled || somePending) {
+    setAdDiagnostic('일부 슬롯 상태 확인 필요: 미채움/지연. 광고 승인 상태와 광고차단기, 브라우저 확장 기능을 확인하세요.', 'warn');
+    return;
+  }
+
+  setAdDiagnostic('광고 렌더링 상태를 확인 중입니다. 잠시 후에도 미노출이면 새로고침/확장기능 점검 후 재시도하세요.', 'info');
+}
+
+function openAdConfig() {
+  const existing = document.getElementById('rv9-ads-modal');
+  if (existing) {
+    existing.style.display = 'flex';
+    return;
+  }
+
+  const overlay = document.createElement('div');
+  overlay.id = 'rv9-ads-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(26,25,20,0.45);font-family:var(--mono);';
+  overlay.innerHTML = `
+    <div style="width:calc(100% - 28px);max-width:640px;background:#f4f3f0;border:1px solid var(--ink);padding:16px 18px;">
+      <h3 style="margin:0 0 8px;font-size:11px;letter-spacing:.4em;text-transform:uppercase;">AdSense 설정</h3>
+      <p style="margin:0 0 12px;font-size:9px;letter-spacing:.2em;color:var(--ink-70);text-transform:uppercase;line-height:1.5;">
+        운영 광고는 Google AdSense 계정의 Publisher ID(ca-pub-...)와 Slot ID가 있어야 작동합니다.
+      </p>
+      <label style="display:block;font-size:8px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-70);margin-bottom:4px;">Publisher ID</label>
+      <input id="rv9-ad-publisher" type="text" value="${adConfig.clientId || ''}" placeholder="ca-pub-xxxxxxxxxxxxxxxx" style="width:100%;background:#eceae5;border:1px solid var(--ink);padding:8px;color:var(--ink);font-family:var(--mono);font-size:11px;outline:none;margin-bottom:8px;" />
+      <label style="display:block;font-size:8px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-70);margin-bottom:4px;">Layout A Slot ID (728x90)</label>
+      <input id="rv9-ad-slot-leader" type="text" value="${adConfig.slotIdLeaderboard || adConfig.slotId || ''}" placeholder="1234567890" style="width:100%;background:#eceae5;border:1px solid var(--ink);padding:8px;color:var(--ink);font-family:var(--mono);font-size:11px;outline:none;margin-bottom:8px;" />
+      <label style="display:block;font-size:8px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-70);margin-bottom:4px;">Layout B Slot ID (300x250)</label>
+      <input id="rv9-ad-slot-rect" type="text" value="${adConfig.slotIdRect || ''}" placeholder="2345678901" style="width:100%;background:#eceae5;border:1px solid var(--ink);padding:8px;color:var(--ink);font-family:var(--mono);font-size:11px;outline:none;margin-bottom:8px;" />
+      <div style="font-size:8px;letter-spacing:.18em;color:var(--ink-70);margin-bottom:10px;text-transform:uppercase;">Layout B는 선택 입력이며, 없으면 상단 광고만 노출됩니다.</div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-70);margin-bottom:12px;">
+        <input id="rv9-ad-responsive" type="checkbox" ${adConfig.responsive ? 'checked' : ''} /> RESPONSIVE(가로폭 자동 확장)
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-70);margin-bottom:12px;">
+        <input id="rv9-ad-enabled" type="checkbox" ${adConfig.enabled ? 'checked' : ''} /> 광고 노출 활성화
+      </label>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button id="rv9-ad-save" class="btn btn-small">SAVE</button>
+        <button id="rv9-ad-clear" class="btn btn-small">CLEAR</button>
+        <button id="rv9-ad-close" class="btn btn-small">CLOSE</button>
+      </div>
+    </div>
+  `;
+
+  const close = () => overlay.remove();
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) close();
+  });
+  overlay.querySelector('#rv9-ad-close').addEventListener('click', close);
+  overlay.querySelector('#rv9-ad-save').addEventListener('click', () => {
+    const enabled = overlay.querySelector('#rv9-ad-enabled').checked;
+    const clientId = overlay.querySelector('#rv9-ad-publisher').value.trim();
+    const slotLeader = overlay.querySelector('#rv9-ad-slot-leader').value.trim();
+    const slotRect = overlay.querySelector('#rv9-ad-slot-rect').value.trim();
+    const responsive = overlay.querySelector('#rv9-ad-responsive').checked;
+    if (enabled && (!clientId || (!slotLeader && !slotRect))) {
+      alert('광고를 활성화하려면 Publisher ID와 최소 1개 이상의 Slot ID를 입력해야 합니다.');
+      return;
+    }
+    saveAdConfig({
+      enabled,
+      clientId,
+      slotId: slotLeader || slotRect,
+      slotIdLeaderboard: slotLeader,
+      slotIdRect: slotRect,
+      responsive
+    });
+    close();
+    renderAds();
+  });
+  overlay.querySelector('#rv9-ad-clear').addEventListener('click', () => {
+    clearAdConfig();
+    close();
+    renderAds();
+  });
+
+  document.body.appendChild(overlay);
+}
+
+function getStoredApiKey() {
+  return localStorage.getItem(KEY_STORAGE.local)
+    || sessionStorage.getItem(KEY_STORAGE.session)
+    || '';
+}
+
+function saveApiKey(nextKey, keepLocal) {
+  apiKey = sanitizeKeyInput(nextKey);
+  sessionStorage.removeItem(KEY_STORAGE.session);
+  localStorage.removeItem(KEY_STORAGE.local);
+  localStorage.setItem(KEY_STORAGE.remember, keepLocal ? 'local' : 'session');
+
+  if (!apiKey) {
+    return;
+  }
+  if (keepLocal) {
+    localStorage.setItem(KEY_STORAGE.local, apiKey);
+  } else {
+    sessionStorage.setItem(KEY_STORAGE.session, apiKey);
+  }
+}
+
+function sanitizeKeyInput(value) {
+  return String(value || '').trim();
+}
+
+function hasApiKey() {
+  if (!apiKey) apiKey = getStoredApiKey();
+  return Boolean(apiKey);
+}
+
+function getDataPolicies() {
+  const keyMode = localStorage.getItem(KEY_STORAGE.local) ? 'localStorage' : (sessionStorage.getItem(KEY_STORAGE.session) ? 'sessionStorage' : '메모리만 사용');
+  return {
+    exposed: [
+      'seed 입력값',
+      '사용자가 제공한 seed 기반 파생 텍스트',
+      'AI가 반환한 영문/한글 텍스트',
+      '드리프트 점수, 진행 상태, 단계 로그(브라우저 내 변수)',
+      '이미지 변환 결과(PNG data URL, SVG string)'
+    ],
+    persisted: [
+      `API 키 보관: ${keyMode}`,
+      '광고 설정: Publisher ID/Slot ID(원하면 브라우저 localStorage에 저장)',
+      'localStorage: 마지막 seed/반복(기록 동의 시)',
+      '내보낸 세션 파일(JSON/TXT) (사용자 다운로드)'
+    ]
+  };
+}
+
+function openKeyManager() {
+  const existing = document.getElementById('rv9-keys-modal');
+  if (existing) {
+    existing.style.display = 'flex';
+    return;
+  }
+
+  const dataPolicy = getDataPolicies();
+  const overlay = document.createElement('div');
+  overlay.id = 'rv9-keys-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(26,25,20,0.45);font-family:var(--mono);';
+  overlay.innerHTML = `
+    <div style="background:#f4f3f0;border:1px solid var(--ink);max-width:620px;width:calc(100% - 28px);padding:16px 18px;">
+      <h3 style="margin:0 0 8px;font-size:11px;letter-spacing:.4em;text-transform:uppercase;">API KEY 설정</h3>
+      <p style="margin:0 0 12px;font-size:9px;letter-spacing:.2em;color:var(--ink-70);text-transform:uppercase;line-height:1.5;">
+        노출(브라우저/네트워크): seed, 파생 텍스트, AI 출력. 보존(브라우저): 키 선택 저장소, 마지막 실행 seed/반복, 수동 export 파일.
+      </p>
+      <label style="display:block;font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-70);margin-bottom:4px;">Google Generative Language API key</label>
+      <input id="rv9-key-input" type="password" placeholder="AIza..." style="width:100%;background:#eceae5;border:1px solid var(--line);padding:8px;color:var(--ink);font-family:var(--mono);font-size:11px;outline:none;" />
+      <label style="display:block;margin:12px 0 8px;font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-70);">
+        <input type="checkbox" id="rv9-remember-local" /> localStorage에 키 보존 (동의한 경우만)
+      </label>
+      <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;margin-top:10px;flex-wrap:wrap;">
+        <button id="rv9-keys-cancel" type="button" class="btn btn-small" style="padding:6px 10px;">CANCEL</button>
+        <button id="rv9-keys-clear" type="button" class="btn btn-small" style="padding:6px 10px;">CLEAR KEY</button>
+        <button id="rv9-keys-save" type="button" class="btn btn-run" style="padding:6px 10px;">SAVE</button>
+      </div>
+      <div style="margin-top:12px;font-size:8px;letter-spacing:.18em;color:var(--ink-70);text-transform:uppercase;line-height:1.7;">
+        <div><strong>노출 데이터</strong>: ${dataPolicy.exposed.map(item => ` · ${item}`).join('<br/>')}</div>
+        <div style="margin-top:8px;"><strong>보존 데이터</strong>: ${dataPolicy.persisted.map(item => ` · ${item}`).join('<br/>')}</div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  document.getElementById('rv9-key-input').value = getStoredApiKey();
+
+  document.getElementById('rv9-keys-save').addEventListener('click', () => {
+    saveApiKey(
+      document.getElementById('rv9-key-input').value,
+      !!document.getElementById('rv9-remember-local').checked
+    );
+    overlay.remove();
+    setStatus('API key updated.');
+  });
+  document.getElementById('rv9-keys-clear').addEventListener('click', () => {
+    saveApiKey('', false);
+    sessionStorage.removeItem(KEY_STORAGE.remember);
+    localStorage.removeItem(KEY_STORAGE.local);
+    localStorage.removeItem(KEY_STORAGE.remember);
+    overlay.remove();
+    setStatus('API key cleared.');
+  });
+  document.getElementById('rv9-keys-cancel').addEventListener('click', () => {
+    overlay.remove();
+  });
+  overlay.addEventListener('click', (event) => {
+    if (event.target === overlay) overlay.remove();
+  });
+}
+
+const stepsEl    = document.getElementById('steps');
+const startBtn   = document.getElementById('start-btn');
+const stopBtn    = document.getElementById('stop-btn');
+const exportBtn  = document.getElementById('export-btn');
+const seedInput  = document.getElementById('seed-input');
+const iterInput  = document.getElementById('iter-input');
+const motionToggle = document.getElementById('motion-toggle');
+const statusText = document.getElementById('status-text');
+const progressFill = document.getElementById('progress-fill');
+
+let sessionData = [];   // full log of this run
+let abortFlag = false;
+let isRunning = false;
+
+function setStatus(m) { statusText.textContent = m; }
+function setProgress(done, total) {
+  progressFill.style.width = (total ? (done / total * 100) : 0) + '%';
+}
+
+// ───── Download helpers ─────────────────────────────────
+function downloadBlob(filename, content, mime) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+function downloadSVG(i) {
+  const entry = sessionData[i];
+  if (!entry || !entry.svg) return;
+  downloadBlob(`drift_step${String(i+1).padStart(2,'0')}.svg`, entry.svg, 'image/svg+xml');
+}
+function downloadPNG(i) {
+  const entry = sessionData[i];
+  if (!entry || !entry.png_data_url) return;
+  const a = document.createElement('a');
+  a.href = entry.png_data_url;
+  a.download = `drift_step${String(i+1).padStart(2,'0')}.png`;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+}
+function downloadText(i) {
+  const entry = sessionData[i];
+  if (!entry) return;
+  const inputMode = entry.used_image_input ? 'PNG image (base64)' : 'SVG source (text fallback)';
+  const driftStr = entry.drift !== null && entry.drift !== undefined ? entry.drift.toFixed(3) : 'n/a';
+  const txt = `STEP ${i+1}\n-----\nSEED (input): ${entry.seed}\nAI INPUT MODE: ${inputMode}\n\nPERCEPTION (EN): ${entry.perception}\nPERCEPTION (KO): ${entry.perception_ko || '(translation unavailable)'}\n\nWORD OVERLAP DRIFT (vs prev): ${driftStr}\n`;
+  downloadBlob(`drift_step${String(i+1).padStart(2,'0')}.txt`, txt, 'text/plain;charset=utf-8');
+}
+function exportAll() {
+  const out = {
+    meta: {
+      initial_seed: sessionData[0]?.seed || '',
+      iterations: sessionData.length,
+      timestamp: new Date().toISOString(),
+      vision_probe_result: visionProbeResult,
+      note: visionProbeResult === 'confirmed'
+        ? 'AI received PNG images as base64 input (pixel-level vision).'
+        : visionProbeResult === 'partial'
+          ? 'AI received PNG base64, but vision accuracy is partial.'
+          : 'AI could not process images; fell back to reading SVG source as text.'
+    },
+    steps: sessionData
+  };
+  downloadBlob('drift_session.json', JSON.stringify(out, null, 2), 'application/json');
+}
+
+// ───── Typewriter ───────────────────────────────────────
+async function typeText(container, text, cursorEl, speed = 25) {
+  for (let c = 0; c < text.length; c++) {
+    if (abortFlag) break;
+    const node = document.createTextNode(text[c]);
+    container.insertBefore(node, cursorEl);
+    const delay = speed + (Math.random() * 20 - 10);
+    await new Promise(r => setTimeout(r, Math.max(8, delay)));
+  }
+}
+
+// ───── Semantic similarity — Claude가 직접 채점 ─────────
+// 단어 겹침(Jaccard)은 시적 표현 다양성 때문에 항상 낮게 나옴.
+// Claude에게 두 문장의 의미/분위기 유사도를 0.00~1.00으로 물어봄.
+// i === 0 이면 null (씨앗→묘사 비교는 의미없음).
+async function computeSimilarity(a, b) {
+  if (!a || !b) return null;
+  try {
+    const prompt = `Rate the semantic and atmospheric similarity between these two sentences on a scale from 0.00 to 1.00.
+0.00 = completely different subject, mood, and imagery
+0.50 = somewhat related atmosphere or overlapping themes
+1.00 = nearly identical scene and feeling
+
+Sentence A: "${a}"
+Sentence B: "${b}"
+
+Respond with ONLY a decimal number between 0.00 and 1.00. Nothing else.`;
+
+    const result = await callClaude(prompt);
+    const num = parseFloat(result.trim());
+    if (isNaN(num) || num < 0 || num > 1) return null;
+    return num;
+  } catch (e) {
+    console.warn('similarity scoring failed:', e);
+    return null;
+  }
+}
+
+// ───── Abort-aware sleep and race helper ───────────────
+function abortablePromise(promise) {
+  // Races the given promise against a watcher that rejects the moment abortFlag is set.
+  return new Promise((resolve, reject) => {
+    let done = false;
+    const tick = setInterval(() => {
+      if (abortFlag && !done) {
+        done = true;
+        clearInterval(tick);
+        reject(new Error('aborted'));
+      }
+    }, 100);
+    promise.then(v => {
+      if (done) return;
+      done = true; clearInterval(tick); resolve(v);
+    }).catch(e => {
+      if (done) return;
+      done = true; clearInterval(tick); reject(e);
+    });
+  });
+}
+
+async function abortableSleep(ms) {
+  const start = Date.now();
+  while (Date.now() - start < ms) {
+    if (abortFlag) throw new Error('aborted');
+    await new Promise(r => setTimeout(r, Math.min(50, ms - (Date.now() - start))));
+  }
+}
+
+// ───── LLM call via user-provided Gemini key ───────────
+async function callClaude(prompt, options = {}) {
+  if (!hasApiKey()) throw new Error('API key is not set. Open KEYS and enter a key.');
+  if (abortFlag) throw new Error('aborted');
+
+  const {
+    imageBase64 = '',
+    temperature = 0.8,
+    maxOutputTokens = 1024
+  } = options;
+
+  const parts = [{ text: prompt }];
+  if (imageBase64) {
+    parts.push({
+      inline_data: {
+        mime_type: 'image/png',
+        data: imageBase64
+      }
+    });
+  }
+
+  const payload = {
+    contents: [{ role: 'user', parts }],
+    generationConfig: {
+      temperature,
+      topP: 1,
+      maxOutputTokens
+    }
+  };
+
+  const url = `${GEMINI_BASE_URL}/v1/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const response = await abortablePromise(fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  }));
+  const raw = await response.text();
+  if (!response.ok) {
+    throw new Error(`Gemini API error ${response.status}: ${raw.slice(0, 180)}`);
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (err) {
+    throw new Error('Failed to parse API response JSON.');
+  }
+  const text = (parsed?.candidates?.[0]?.content?.parts || [])
+    .map((part) => String(part?.text || ''))
+    .join('')
+    .trim();
+  if (!text) throw new Error('Empty response from API.');
+  return text;
+}
+
+// ───── SVG generation with retry ────────────────────────
+async function generateSVG(description, retries = 3) {
+  const prompt = `RESPOND WITH ONLY SVG CODE. NO WORDS. NO EXPLANATION. START WITH <svg. END WITH </svg>.
+
+Generate raw SVG code for an abstract visual impression of: "${description}"
+
+Rules:
+- Start with: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+- First child: <rect width="400" height="400" fill="none"/> (transparent — let shapes define the composition)
+- 12-18 overlapping shapes. Opacity 0.4-0.75. Watercolor feel, no hard outlines.
+- CRITICAL — let the subject "${description}" fully determine both FORM and COLOR:
+  The shapes, colors, and mood must be a direct visual response to the specific subject.
+  Do NOT default to flowers or plants unless the subject is about them.
+  Examples: "starry night" → indigo/navy washes + small scattered circles as stars + swirling paths
+            "melancholy" → muted grey-blue, sparse composition, slow curves
+            "fire" → amber, sienna, ochre, radiating jagged forms
+            "ocean" → slate blues, fluid horizontal paths, layered washes
+            "forest" → deep greens, vertical forms, filtered light yellows
+- PALETTE — always muted, never saturated. Choose colors that match the subject:
+  navy #1a2a4a · indigo #3a4a7a · sage #4a6741 · olive #3d4a2a
+  amber #c8a060 · ochre #b8883a · slate #6a7a8a · sienna #8a4a30
+  dusty rose #c4a0a0 · warm cream #f0ebe0 · charcoal #3a3530
+- 1-3 thin stroke-only paths (fill="none", stroke-width 0.8-2) for gesture lines
+- Asymmetric composition, NOT centered
+- NO text, NO <image>, NO external references, NO foreignObject, NO <script>
+- End with </svg>
+
+Output ONLY the SVG code. Nothing else.`;
+
+  let lastErr;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    if (abortFlag) throw new Error('aborted');
+    try {
+      const txt = await callClaude(prompt);
+      // strip markdown fences if present
+      let cleaned = txt.replace(/```[a-z]*\n?/gi, '').replace(/```/g, '').trim();
+      const match = cleaned.match(/<svg[\s\S]*?<\/svg>/);
+      if (!match) {
+        // last resort: if response starts with <svg without closing, try wrapping
+        if (cleaned.trimStart().startsWith('<svg') && cleaned.includes('</svg>')) {
+          // already handled by regex above
+        }
+        throw new Error('no <svg> tag in response');
+      }
+      const svg = match[0];
+      if (svg.length < 200) throw new Error('SVG too short');
+      return svg;
+    } catch (e) {
+      lastErr = e;
+      if (attempt < retries) {
+        setStatus(`retry ${attempt + 1}/${retries} · regenerating...`);
+        await new Promise(r => setTimeout(r, 300));
+      }
+    }
+  }
+  throw lastErr;
+}
+
+// ───── SVG → PNG base64 rasterization ──────────────────
+function svgToPngBase64(svgString, size = 512) {
+  return new Promise((resolve, reject) => {
+    const encoded = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
+    const img = new Image();
+    const timeout = setTimeout(() => reject(new Error('SVG rasterization timeout')), 8000);
+    img.onload = () => {
+      clearTimeout(timeout);
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = size; canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = 'transparent';
+        ctx.fillRect(0, 0, size, size);
+        ctx.drawImage(img, 0, 0, size, size);
+        const dataUrl = canvas.toDataURL('image/png');
+        const base64 = dataUrl.split(',')[1];
+        if (!base64 || base64.length < 100) {
+          reject(new Error('empty PNG'));
+        } else {
+          resolve({ base64, dataUrl });
+        }
+      } catch (e) { reject(e); }
+    };
+    img.onerror = () => { clearTimeout(timeout); reject(new Error('SVG load failed')); };
+    img.src = encoded;
+  });
+}
+
+// ───── Vision capability probe (runs once per session) ─
+let visionProbeResult = null;  // 'confirmed' | 'partial' | 'failed' | null
+
+async function runVisionProbe() {
+  // Draw a known stimulus: red circle + green square on black
+  const canvas = document.createElement('canvas');
+  canvas.width = 200; canvas.height = 200;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#000000';
+  ctx.fillRect(0, 0, 200, 200);
+  ctx.fillStyle = '#E63946';  // red
+  ctx.beginPath(); ctx.arc(60, 60, 30, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#52B788';  // green
+  ctx.fillRect(110, 110, 60, 60);
+  const base64 = canvas.toDataURL('image/png').split(',')[1];
+
+  const prompt = `Look at this image and describe exactly what you see in one sentence. Mention the distinct shape and approximate color terms.
+Return only what is in the image.`;
+
+  let response;
+  try {
+    response = await callClaude(prompt, { imageBase64: base64, temperature: 0.0, maxOutputTokens: 120 });
+  } catch (e) {
+    console.warn('probe failed:', e);
+    return 'failed';
+  }
+  const t = response.toLowerCase();
+  const hasRed    = /\bred\b|\bcrimson\b|\bscarlet\b/.test(t);
+  const hasGreen  = /\bgreen\b|\bemerald\b|\blime\b/.test(t);
+  const hasCircle = /\bcircle\b|\bround\b|\bdisk\b/.test(t);
+  const hasSquare = /\bsquare\b|\brectangle\b/.test(t);
+  const refusal   = /can'?t (see|view)|unable to (see|view)|no (image|visual)|don'?t have.{0,20}(image|visual)|appears to be.{0,20}base64|just.{0,10}(text|data|string)/.test(t);
+
+  console.log('VISION PROBE response:', response);
+  console.log('flags:', JSON.stringify({ hasRed, hasGreen, hasCircle, hasSquare, refusal }));
+
+  const hits = [hasRed, hasGreen, hasCircle, hasSquare].filter(Boolean).length;
+  if (refusal || hits === 0) return 'failed';
+  if (hits >= 3 && hasRed && hasGreen) return 'confirmed';
+  return 'partial';
+}
+
+// ───── Sanitize SVG ─────────────────────────────────────
+function sanitizeSVG(svgString) {
+  let s = svgString;
+  if (!s.includes('xmlns=')) {
+    s = s.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+  }
+  s = s.replace(/<script[\s\S]*?<\/script>/gi, '');
+  s = s.replace(/<image[^>]*\/?>/gi, '');
+  s = s.replace(/<foreignObject[\s\S]*?<\/foreignObject>/gi, '');
+  s = s.replace(/\son\w+="[^"]*"/gi, '');
+  s = s.replace(/xlink:href="http[^"]*"/gi, '');
+  s = s.replace(/href="http[^"]*"/gi, '');
+  return s;
+}
+
+// ───── Korean translation ──────────────────────────────
+async function translateToKorean(englishText) {
+  const prompt = `Translate the following English sentence into natural, poetic Korean.
+Keep the evocative, slightly uncertain tone. Do not add explanations or quotes.
+Output ONLY the Korean translation, nothing else.
+
+English: ${englishText}
+
+Korean:`;
+  try {
+    const result = await callClaude(prompt);
+    return result.replace(/^["'`]+|["'`]+$/g, '').trim();
+  } catch (e) {
+    console.warn('translation failed:', e);
+    return '';
+  }
+}
+
+// ───── Describe from PNG base64 (image input) ──────────
+async function describeFromImage(pngBase64, retries = 1) {
+  const prompt = `Below is an abstract image provided as a base64-encoded PNG.
+Look at the image and describe what you PERCEIVE in ONE evocative sentence (15-25 words).
+Focus on forms, mood, impression. Be subjective, poetic, slightly uncertain.
+Do NOT mention "base64", "PNG", "encoding", "shapes", "abstract art", or specific color names.
+Describe what you think you are seeing as if it were a real scene or subject.
+Respond with ONLY the sentence. No quotes, no prefix, no explanation.
+
+Image (base64 PNG):
+${pngBase64}`;
+  let lastErr;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    if (abortFlag) throw new Error('aborted');
+    try {
+      const result = await callClaude(prompt, { imageBase64: pngBase64, maxOutputTokens: 220 });
+      const cleaned = result.replace(/^["'`]+|["'`]+$/g, '').trim();
+      if (!cleaned || cleaned.length < 5) throw new Error('empty/short perception');
+      // Reject if Claude clearly refuses to process the image
+      if (/can'?t (see|view)|unable to (see|view)|no image|just.{0,10}(text|data|string)|base64 (data|string|encoded)/i.test(cleaned)) {
+        throw new Error('model refused image input');
+      }
+      return cleaned;
+    } catch (e) {
+      lastErr = e;
+      if (attempt < retries) await new Promise(r => setTimeout(r, 400));
+    }
+  }
+  throw lastErr;
+}
+
+// ───── Describe with retry (legacy, SVG source fallback) ─
+async function describeFromSVG(svgString, retries = 1) {
+  const trimmed = svgString.length > 4000 ? svgString.slice(0, 4000) + ' ...' : svgString;
+  const prompt = `Below is raw SVG code consisting of abstract overlapping shapes on a dark background.
+Imagine the rendered image and describe what you PERCEIVE in ONE evocative sentence (15-25 words).
+Focus on forms, mood, impression. Be subjective, poetic, slightly uncertain.
+Do NOT mention "SVG", "shapes", "code", "abstract art", or specific color names like "magenta".
+Describe what you think you are seeing as if it were a real scene or subject.
+Respond with ONLY the sentence. No quotes, no prefix, no explanation.
+
+SVG:
+${trimmed}`;
+
+  let lastErr;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    if (abortFlag) throw new Error('aborted');
+    try {
+      const result = await callClaude(prompt);
+      const cleaned = result.replace(/^["'`]+|["'`]+$/g, '').trim();
+      if (!cleaned || cleaned.length < 5) throw new Error('empty/short perception');
+      return cleaned;
+    } catch (e) {
+      lastErr = e;
+      if (attempt < retries) await new Promise(r => setTimeout(r, 400));
+    }
+  }
+  throw lastErr;
+}
+
+// ───── Render one step UI block ─────────────────────────
+function renderStepShell(i) {
+  // Don't create twice (label-flight code may pre-render)
+  const existing = document.getElementById(`step-${i}`);
+  if (existing) return existing;
+  const stepEl = document.createElement('div');
+  stepEl.className = 'step';
+  stepEl.id = `step-${i}`;
+  stepEl.innerHTML = `
+    <div class="step-num" id="stepnum-${i}">
+      <div class="num-big">${String(i+1).padStart(2,'0')}</div>
+      <div class="num-label">step</div>
+      <div class="drift-metric" id="drift-${i}"></div>
+    </div>
+    <div class="vis-wrap">
+      <div class="vis-box loading" id="vis-${i}"></div>
+      <div class="vis-actions" id="vis-actions-${i}"></div>
+    </div>
+    <div class="text-box loading" id="text-${i}">
+      <div class="text-prefix">AI sees</div>
+      <div class="text-content" id="content-${i}">observing...</div>
+      <div class="text-content-ko" id="ko-${i}"></div>
+      <div class="text-actions" id="text-actions-${i}"></div>
+    </div>
+  `;
+  stepsEl.appendChild(stepEl);
+  requestAnimationFrame(() => stepEl.classList.add('active'));
+  stepEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  return stepEl;
+}
+
+function attachStepActions(i) {
+  const visActions = document.getElementById(`vis-actions-${i}`);
+  visActions.innerHTML = `
+    <button class="btn btn-small" onclick="downloadSVG(${i})">⬇ SVG</button>
+    <button class="btn btn-small" onclick="downloadPNG(${i})">⬇ PNG</button>
+    <button class="btn btn-small" onclick="retryStep(${i})">↻ RETRY</button>
+  `;
+  const textActions = document.getElementById(`text-actions-${i}`);
+  textActions.innerHTML = `<button class="btn btn-small" onclick="downloadText(${i})">⬇ TXT</button>`;
+}
+
+// ───── Flow thumbnail bar ──────────────────────────────
+function addFlowThumbnail(i, svgString) {
+  const track = document.getElementById('flow-track');
+  const bar = document.getElementById('flow-bar');
+  bar.classList.remove('empty');
+
+  // Remove "current" marker from previous thumbs
+  track.querySelectorAll('.flow-thumb.current').forEach(el => el.classList.remove('current'));
+
+  // Check if a thumb for this step already exists (e.g., from RETRY)
+  let thumb = document.getElementById(`thumb-${i}`);
+  if (thumb) {
+    // Replace inner SVG
+    const inner = thumb.querySelector('svg');
+    if (inner) inner.remove();
+    thumb.insertAdjacentHTML('afterbegin', svgString);
+  } else {
+    thumb = document.createElement('div');
+    thumb.className = 'flow-thumb';
+    thumb.id = `thumb-${i}`;
+    thumb.title = `Step ${i+1} — click to scroll`;
+    thumb.innerHTML = svgString + `<span class="thumb-num">${String(i+1).padStart(2,'0')}</span>`;
+    thumb.addEventListener('click', () => scrollToStep(i));
+    track.appendChild(thumb);
+  }
+  thumb.classList.add('current');
+}
+
+function scrollToStep(i) {
+  const el = document.getElementById(`step-${i}`);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function clearFlowBar() {
+  const track = document.getElementById('flow-track');
+  track.innerHTML = '';
+  document.getElementById('flow-bar').classList.add('empty');
+}
+
+function renderDriftMetric(i) {
+  const el = document.getElementById(`drift-${i}`);
+  if (!el) return;
+  const d = sessionData[i]?.drift;
+
+  if (d === null || d === undefined) {
+    el.innerHTML = '';
+    return;
+  }
+
+  const pct = Math.round(d * 100);
+  el.innerHTML = `
+    <span class="dm-label">이전 단계와의 유사도</span>
+    <span class="dm-val">${d.toFixed(2)}</span>
+    <span class="dm-bar-track"><span class="dm-bar-fill" style="width:${pct}%"></span></span>
+  `;
+}
+
+// ───── Seed transition label (v6_label) ──────────────
+function addSeedLabel(i, textBox) {
+  // Prepend a small "SEED →" pill above the content
+  const label = document.createElement('div');
+  label.className = 'seed-label';
+  label.id = `seed-label-${i}`;
+  label.textContent = 'this becomes seed →';
+  // Insert at the very start of textBox, right after the "AI SEES ::" prefix
+  const prefix = textBox.querySelector('.text-prefix');
+  if (prefix && prefix.nextSibling) {
+    textBox.insertBefore(label, prefix.nextSibling);
+  } else {
+    textBox.appendChild(label);
+  }
+}
+
+function flySeedLabel(fromStepIdx, toStepIdx) {
+  const label = document.getElementById(`seed-label-${fromStepIdx}`);
+  const targetStepNum = document.getElementById(`stepnum-${toStepIdx}`);
+  if (!label || !targetStepNum) return;
+
+  // Capture starting position
+  const startRect = label.getBoundingClientRect();
+  const targetRect = targetStepNum.getBoundingClientRect();
+
+  // Switch to fixed-position flying state at starting location
+  label.classList.add('flying');
+  label.style.top = startRect.top + 'px';
+  label.style.left = startRect.left + 'px';
+  label.style.width = startRect.width + 'px';
+
+  // Force reflow, then transition to target
+  // Target: just below the step number (the big "01" etc.)
+  requestAnimationFrame(() => {
+    label.style.top = (targetRect.top + targetRect.height / 2 - 10) + 'px';
+    label.style.left = (targetRect.left + targetRect.width / 2 - startRect.width / 2) + 'px';
+    setTimeout(() => {
+      label.classList.add('landing');
+      document.getElementById(`stepnum-${toStepIdx}`)?.classList.add('seed-received');
+    }, 1000);
+    setTimeout(() => {
+      label.remove();
+      document.getElementById(`stepnum-${toStepIdx}`)?.classList.remove('seed-received');
+    }, 1800);
+  });
+}
+
+// ───── Wait for scroll to fully stop ────────────────
+function waitForScrollStop(callback, tolerance = 1, interval = 50, maxWait = 1500) {
+  let lastY = window.scrollY;
+  let stableCount = 0;
+  let elapsed = 0;
+  const check = setInterval(() => {
+    const currentY = window.scrollY;
+    elapsed += interval;
+    if (Math.abs(currentY - lastY) <= tolerance) {
+      stableCount++;
+      if (stableCount >= 2) {   // stable for 2 consecutive checks = 100ms
+        clearInterval(check);
+        callback();
+      }
+    } else {
+      stableCount = 0;
+    }
+    lastY = currentY;
+    if (elapsed >= maxWait) {   // safety: fire anyway after maxWait
+      clearInterval(check);
+      callback();
+    }
+  }, interval);
+}
+
+// ───── Seed particle: fly → orbit box perimeter → absorb ─
+function fireParticles(fromStepIdx, toStepIdx) {
+  const fromBox = document.getElementById(`text-${fromStepIdx}`);
+  const toBox   = document.getElementById(`vis-${toStepIdx}`);
+  if (!fromBox || !toBox) return;
+
+  const fromRect = fromBox.getBoundingClientRect();
+  const toRect   = toBox.getBoundingClientRect();
+
+  const ox = fromRect.left + fromRect.width  / 2;
+  const oy = fromRect.top  + fromRect.height / 2;
+  const bl = toRect.left, bt = toRect.top;
+  const br = toRect.right, bb = toRect.bottom;
+  const bx = (bl + br) / 2, by = (bt + bb) / 2;
+  const bw = toRect.width,  bh = toRect.height;
+  const perimeter = 2 * (bw + bh);
+
+  // Map 0~1 progress to a point on the rectangle perimeter (clockwise from top-left)
+  function perimPt(t) {
+    const d = ((t % 1) + 1) % 1 * perimeter;
+    if (d < bw)            return { x: bl + d,            y: bt };
+    if (d < bw + bh)       return { x: br,                y: bt + d - bw };
+    if (d < 2*bw + bh)     return { x: br - (d - bw - bh), y: bb };
+    return                        { x: bl,                y: bb - (d - 2*bw - bh) };
+  }
+
+  const COUNT = 5;
+  const COLORS = [
+    'rgba(42, 58, 92, 0.85)',
+    'rgba(55, 72, 110, 0.78)',
+    'rgba(35, 50, 80, 0.90)',
+    'rgba(60, 78, 118, 0.72)',
+    'rgba(42, 58, 92, 0.80)',
+  ];
+
+  toBox.classList.add('particle-orbit');
+  let finishedCount = 0;
+
+  for (let p = 0; p < COUNT; p++) {
+    const launchDelay = p * 90;
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'seed-particle';
+      el.style.background = COLORS[p];
+      el.style.boxShadow  = `0 0 8px ${COLORS[p]}`;
+      el.style.left = ox + 'px';
+      el.style.top  = oy + 'px';
+      document.body.appendChild(el);
+
+      // ── Phase 1: FLY to box perimeter ──────────────
+      const FLIGHT_DUR = 800 + p * 30;
+      const startPerim = p / COUNT;
+      const land = perimPt(startPerim);
+      const arcH = -(60 + p * 25);
+      const cpx  = (ox + land.x) / 2 + (p - 2) * 35;
+      const cpy  = (oy + land.y) / 2 + arcH;
+      let phaseStart = performance.now();
+
+      function flyStep(now) {
+        const t    = Math.min((now - phaseStart) / FLIGHT_DUR, 1);
+        const ease = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
+        el.style.left      = ((1-ease)*(1-ease)*ox + 2*(1-ease)*ease*cpx + ease*ease*land.x) + 'px';
+        el.style.top       = ((1-ease)*(1-ease)*oy + 2*(1-ease)*ease*cpy + ease*ease*land.y) + 'px';
+        el.style.transform = `translate(-50%,-50%) scale(${1 - ease * 0.2})`;
+        if (t < 1) requestAnimationFrame(flyStep);
+        else { phaseStart = performance.now(); requestAnimationFrame(orbitStep); }
+      }
+
+      // ── Phase 2: ORBIT along rectangle perimeter ───
+      const ORBIT_DUR  = 1600 + p * 100;
+      const ORBIT_LAPS = 1.3;
+      const dir = p % 2 === 0 ? 1 : -1;  // alternate CW / CCW
+
+      function orbitStep(now) {
+        const t   = Math.min((now - phaseStart) / (ORBIT_DUR * ORBIT_LAPS), 1);
+        const pos = perimPt(startPerim + dir * t * ORBIT_LAPS);
+        el.style.left      = pos.x + 'px';
+        el.style.top       = pos.y + 'px';
+        el.style.opacity   = t > 0.85 ? String(1 - (t - 0.85) / 0.15) : '1';
+        el.style.transform = `translate(-50%,-50%) scale(${0.8 + 0.2 * (1 - t)})`;
+        if (t < 1) requestAnimationFrame(orbitStep);
+        else { phaseStart = performance.now(); requestAnimationFrame(absorbStep); }
+      }
+
+      // ── Phase 3: ABSORB into center ────────────────
+      const ABSORB_DUR = 350;
+      const endPos = perimPt(startPerim + dir * ORBIT_LAPS);
+
+      function absorbStep(now) {
+        const t    = Math.min((now - phaseStart) / ABSORB_DUR, 1);
+        const ease = t * t * t;
+        el.style.left      = (endPos.x + (bx - endPos.x) * ease) + 'px';
+        el.style.top       = (endPos.y + (by - endPos.y) * ease) + 'px';
+        el.style.opacity   = String(1 - ease);
+        el.style.transform = `translate(-50%,-50%) scale(${1 - ease})`;
+        if (t < 1) requestAnimationFrame(absorbStep);
+        else {
+          el.remove();
+          finishedCount++;
+          if (finishedCount === COUNT) {
+            toBox.classList.remove('particle-orbit');
+            toBox.classList.add('particle-land');
+            setTimeout(() => toBox.classList.remove('particle-land'), 600);
+          }
+        }
+      }
+
+      requestAnimationFrame(flyStep);
+    }, launchDelay);
+  }
+}
+
+async function runOneStep(i, seed) {
+  const visBox = document.getElementById(`vis-${i}`);
+  const textBox = document.getElementById(`text-${i}`);
+
+  // reset UI
+  visBox.classList.add('loading');
+  visBox.classList.remove('visible');
+  visBox.innerHTML = '';
+  textBox.classList.add('loading');
+  document.getElementById(`content-${i}`).textContent = 'observing...';
+  const koElReset = document.getElementById(`ko-${i}`);
+  if (koElReset) { koElReset.textContent = ''; koElReset.classList.remove('loading-ko'); }
+
+  setStatus(`[step ${i+1}] generating from: "${seed.slice(0, 60)}..."`);
+  visBox.dataset.seed = seed;
+  // overlay — generating 라벨 + 씨앗 전체 문장
+  visBox.innerHTML = `
+    <div class="vis-seed-overlay">
+      <span class="overlay-label">generating</span>
+      <span class="overlay-seed">${seed}</span>
+    </div>
+  `;
+  const svgCode = await generateSVG(seed);
+  const cleanSVG = sanitizeSVG(svgCode);
+  visBox.classList.remove('loading');
+  visBox.innerHTML = cleanSVG;
+  requestAnimationFrame(() => requestAnimationFrame(() => visBox.classList.add('visible')));
+
+  // Add to flow bar above
+  addFlowThumbnail(i, cleanSVG);
+
+  // Rasterize SVG → PNG base64 (this is what Claude actually "sees")
+  setStatus(`[step ${i+1}] rasterizing SVG to PNG...`);
+  let pngData;
+  try {
+    pngData = await svgToPngBase64(cleanSVG, 512);
+  } catch (e) {
+    console.error('rasterization failed:', e);
+    throw new Error('PNG rasterization failed: ' + e.message);
+  }
+
+  setStatus(`[step ${i+1}] AI is interpreting...`);
+  let perception;
+  let usedImageInput;
+  if (visionProbeResult === 'failed') {
+    // Artifact mode: read SVG source as text
+    perception = await describeFromSVG(cleanSVG);
+    usedImageInput = false;
+  } else {
+    // Vision mode (future: local + API)
+    try {
+      perception = await describeFromImage(pngData.base64);
+      usedImageInput = true;
+    } catch (e) {
+      perception = await describeFromSVG(cleanSVG);
+      usedImageInput = false;
+    }
+  }
+
+  textBox.classList.remove('loading');
+  const contentEl = document.getElementById(`content-${i}`);
+  contentEl.textContent = '';
+  if (motionEnabled) {
+    const cursor = document.createElement('span');
+    cursor.className = 'typing-cursor';
+    contentEl.appendChild(cursor);
+    await typeText(contentEl, perception, cursor, 25);
+    cursor.remove();
+  } else {
+    contentEl.textContent = perception || '';
+  }
+
+  // Korean translation (with typewriter effect to give reading time)
+  const koEl = document.getElementById(`ko-${i}`);
+  if (koEl) koEl.classList.add('loading-ko');
+  setStatus(`[step ${i+1}] translating to Korean...`);
+  const perceptionKo = await translateToKorean(perception);
+  if (koEl) {
+    koEl.classList.remove('loading-ko');
+    koEl.textContent = '';
+    if (perceptionKo && motionEnabled) {
+      const koCursor = document.createElement('span');
+      koCursor.className = 'typing-cursor';
+      koEl.appendChild(koCursor);
+      await typeText(koEl, perceptionKo, koCursor, 40);
+      koCursor.remove();
+      // Give time to read the Korean before moving on
+      try { await abortableSleep(2400); } catch(e) { /* aborted, continue */ }
+    } else if (perceptionKo) {
+      koEl.textContent = perceptionKo;
+    }
+  }
+
+  // Show "seed →" label below the text box (this becomes the next seed)
+  if (motionEnabled) {
+    addSeedLabel(i, textBox);
+  }
+
+  // Drift calculation (word overlap)
+  const prev = i > 0 ? sessionData[i-1].perception : seed;
+  // Step 0 (i===0): 씨앗→묘사 비교 의미 없음 → null
+  let drift = null;
+  if (i > 0) {
+    setStatus(`[step ${i+1}] scoring similarity...`);
+    try { drift = await computeSimilarity(prev, perception); } catch(e) {}
+  }
+
+  sessionData[i] = {
+    step: i+1,
+    seed,
+    svg: cleanSVG,
+    png_data_url: pngData.dataUrl,
+    perception,
+    perception_ko: perceptionKo,
+    drift,
+    used_image_input: usedImageInput
+  };
+
+  attachStepActions(i);
+  renderDriftMetric(i);
+  return perception;
+}
+
+// retry a single step (keeps later steps intact but they become stale)
+async function retryStep(i) {
+  if (isRunning) {
+    setStatus('cannot retry while running · stop first');
+    return;
+  }
+  const seed = sessionData[i]?.seed;
+  if (!seed) return;
+  isRunning = true; abortFlag = false;
+  startBtn.disabled = true; stopBtn.disabled = false;
+  try {
+    await runOneStep(i, seed);
+    setStatus(`step ${i+1} regenerated · later steps are now stale`);
+  } catch (e) {
+    setStatus(`retry failed · ${e.message}`);
+  } finally {
+    isRunning = false;
+    startBtn.disabled = false; stopBtn.disabled = true;
+  }
+}
+
+// expose for inline onclick
+window.downloadSVG = downloadSVG;
+window.downloadPNG = downloadPNG;
+window.downloadText = downloadText;
+window.retryStep = retryStep;
+
+// ───── Main loop ────────────────────────────────────────
+async function runDrift() {
+  if (isRunning) return;
+  if (!hasApiKey()) {
+    openKeyManager();
+    setStatus('API key is required before run.');
+    return;
+  }
+  isRunning = true; abortFlag = false;
+  startBtn.disabled = true;
+  stopBtn.disabled = false;
+  exportBtn.classList.remove('visible');
+  stepsEl.innerHTML = '';
+  clearFlowBar();
+  sessionData = [];
+
+  const seed = seedInput.value.trim() || 'a flower in bloom';
+  const maxIter = Math.max(2, Math.min(12, parseInt(iterInput.value) || 4));
+  setProgress(0, maxIter);
+
+  if (visionProbeResult === null) {
+    visionProbeResult = await runVisionProbe();
+    showProbeBanner(visionProbeResult);
+  }
+
+  let currentSeed = seed;
+
+  try {
+    for (let i = 0; i < maxIter; i++) {
+      if (abortFlag) { setStatus('stopped by user'); break; }
+      renderStepShell(i);
+      try {
+        currentSeed = await runOneStep(i, currentSeed);
+      } catch (e) {
+        if (e.message === 'aborted') { setStatus('stopped by user'); break; }
+        console.error(`step ${i+1} failed:`, e);
+        document.getElementById(`vis-${i}`).classList.remove('loading');
+        document.getElementById(`vis-${i}`).innerHTML =
+          '<div class="error">// step failed: ' + (e.message || e) + '</div>';
+        document.getElementById(`text-${i}`).classList.remove('loading');
+        document.getElementById(`text-${i}`).querySelector('.text-content').textContent =
+          '// step failed · see console';
+        setStatus(`error at step ${i+1} · ${e.message}`);
+        break;
+      }
+      setProgress(i + 1, maxIter);
+
+      if (i < maxIter - 1 && !abortFlag && motionEnabled) {
+        const arr = document.createElement('div');
+        arr.className = 'arrow';
+        arr.innerHTML = '<div class="arrow-text">perception becomes the next seed · 지각이 씨앗이 된다</div>';
+        stepsEl.appendChild(arr);
+
+        // Pre-render the next step shell
+        renderStepShell(i + 1);
+        // Fly seed label immediately (it tracks DOM position, works fine offscreen)
+        flySeedLabel(i, i + 1);
+        // Fire particles only AFTER the next vis-box scrolls into view AND scroll stops
+        const nextVisBox = document.getElementById(`vis-${i + 1}`);
+        if (nextVisBox) {
+          const observer = new IntersectionObserver((entries, obs) => {
+            if (entries[0].isIntersecting) {
+              obs.disconnect();
+              // Wait for scroll to fully stop before capturing coordinates
+              waitForScrollStop(() => fireParticles(i, i + 1));
+            }
+          }, { threshold: 0.5 });
+          observer.observe(nextVisBox);
+        }
+      }
+      try { await abortableSleep(motionEnabled ? 1500 : 500); } catch(e) { break; }
+    }
+    if (!abortFlag && sessionData.length > 0) {
+      setStatus(`drift complete · ${sessionData.length} steps · compare first and last`);
+      exportBtn.classList.add('visible');
+    } else if (sessionData.length > 0) {
+      exportBtn.classList.add('visible');
+    }
+  } catch (e) {
+    console.error(e);
+    setStatus('unexpected error · ' + (e.message || e));
+  } finally {
+    isRunning = false; abortFlag = false;
+    startBtn.disabled = false; stopBtn.disabled = true;
+  }
+}
+
+function showProbeBanner(result) {
+  const el = document.getElementById('probe-banner');
+  el.className = 'visible ' + result;
+  if (result === 'confirmed') {
+    el.innerHTML = `<span class="label">vision confirmed ::</span> Test stimulus (red circle + green square) was correctly identified. The AI is reading actual pixel content.<span class="ko">테스트 자극(빨간 원 + 녹색 사각형)을 정확히 식별했습니다. AI가 실제 픽셀을 읽고 있습니다.</span>`;
+  } else if (result === 'partial') {
+    el.innerHTML = `<span class="label">partial vision ::</span> Some features matched but not precisely. Results may mix actual vision with inference.<span class="ko">일부 특징만 일치했습니다. 실제 지각과 추론이 섞여있을 수 있습니다.</span>`;
+  } else {
+    el.innerHTML = `<span class="label">vision unavailable ::</span> The AI cannot process base64 images in this environment. Falling back to reading SVG source code as text.<span class="ko">이 환경에서는 AI가 base64 이미지를 처리할 수 없습니다. SVG 소스 코드를 텍스트로 읽는 방식으로 전환됩니다.</span>`;
+  }
+}
+
+function stopDrift() {
+  if (!isRunning) return;
+  abortFlag = true;
+  setStatus('stopping...');
+  stopBtn.disabled = true;
+  // Clear any step still in loading state so UI doesn't look frozen
+  document.querySelectorAll('.vis-box.loading').forEach(el => {
+    el.classList.remove('loading');
+    if (!el.innerHTML.trim()) {
+      el.innerHTML = '<div class="error">// aborted</div>';
+    }
+  });
+  document.querySelectorAll('.text-box.loading').forEach(el => {
+    el.classList.remove('loading');
+    const c = el.querySelector('.content');
+    if (c && c.textContent === 'observing...') c.textContent = '// aborted';
+  });
+}
+
+startBtn.addEventListener('click', runDrift);
+stopBtn.addEventListener('click', stopDrift);
+exportBtn.addEventListener('click', exportAll);
+document.getElementById('seeds-keys-btn')?.addEventListener('click', openKeyManager);
+document.getElementById('ad-config-btn')?.addEventListener('click', openAdConfig);
+if (motionToggle) {
+  motionEnabled = getStoredMotionEnabled();
+  motionToggle.checked = motionEnabled;
+  motionToggle.addEventListener('change', () => {
+    saveMotionEnabled(motionToggle.checked);
+    setStatus(`motion effects ${motionToggle.checked ? 'on' : 'off'} · performance ${motionToggle.checked ? 'normal' : 'stable'}`);
+  });
+}
+
+apiKey = getStoredApiKey();
+adConfig = getStoredAdConfig();
+renderAds();
+if (!apiKey) {
+  setStatus('Gemini key required. Click ⚙ KEYS to set your key.');
+}
+
+</script>
+</body>
+</html>
+
