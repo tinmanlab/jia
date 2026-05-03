@@ -1,0 +1,4 @@
+.vercel
+hs_err_pid*.log
+*.log
+files.zip
