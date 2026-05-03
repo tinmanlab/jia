@@ -2,3 +2,7 @@
 hs_err_pid*.log
 *.log
 files.zip
+files/
+paper/
+*_NOTES.md
+HANDOFF_*.md
